@@ -1,0 +1,545 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0d1117">
+<title>Brooming the Room Simulator</title>
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: #0d1117;
+    color: #e6edf3;
+    font-family: Arial, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 25px 15px;
+}
+
+header {
+    width: 100%;
+    max-width: 1000px;
+    margin-bottom: 20px;
+}
+
+h1 {
+    font-size: 25px;
+    letter-spacing: -1px;
+}
+
+.subtitle {
+    color: #8b949e;
+    font-size: 13px;
+    margin-top: 6px;
+}
+
+.game-container {
+    width: 100%;
+    max-width: 1000px;
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 12px;
+    padding: 15px;
+}
+
+.hud {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+}
+
+.stat {
+    flex: 1;
+    min-width: 100px;
+    background: #0d1117;
+    padding: 12px;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+}
+
+.stat small {
+    color: #8b949e;
+    display: block;
+    font-size: 11px;
+    margin-bottom: 5px;
+}
+
+.stat strong {
+    font-size: 19px;
+}
+
+.progress-container {
+    height: 7px;
+    background: #30363d;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 15px;
+}
+
+#progress {
+    height: 100%;
+    width: 0%;
+    background: #3fb950;
+    transition: width .2s;
+}
+
+canvas {
+    display: block;
+    width: 100%;
+    border-radius: 7px;
+    background: #b9a98d;
+    border: 1px solid #30363d;
+    cursor: crosshair;
+    touch-action: none;
+}
+
+.controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-top: 15px;
+    flex-wrap: wrap;
+}
+
+.instructions {
+    color: #8b949e;
+    font-size: 12px;
+    line-height: 1.8;
+}
+
+button {
+    background: #238636;
+    border: 1px solid #2ea043;
+    color: white;
+    padding: 10px 17px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+button:hover {
+    background: #2ea043;
+}
+
+#message {
+    color: #3fb950;
+    font-size: 13px;
+    margin-top: 12px;
+    min-height: 18px;
+}
+
+@media(max-width: 600px) {
+    h1 { font-size: 20px; }
+    .game-container { padding: 8px; }
+    .stat { min-width: 75px; padding: 8px; }
+    .stat strong { font-size: 15px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+    <h1>🧹 Brooming the Room Simulator</h1>
+    <p class="subtitle">A completely unnecessary amount of cleaning.</p>
+</header>
+
+<div class="game-container">
+    <div class="hud">
+        <div class="stat">
+            <small>ROOM CLEANED</small>
+            <strong id="cleanPercent">0%</strong>
+        </div>
+        <div class="stat">
+            <small>DIRT REMAINING</small>
+            <strong id="dirtCount">0</strong>
+        </div>
+        <div class="stat">
+            <small>TIME ELAPSED</small>
+            <strong id="timer">00:00</strong>
+        </div>
+    </div>
+
+    <div class="progress-container">
+        <div id="progress"></div>
+    </div>
+
+    <canvas id="game" width="900" height="560"></canvas>
+
+    <div id="message">Grab your broom and start cleaning!</div>
+
+    <div class="controls">
+        <div class="instructions">
+            WASD / ARROW KEYS: Move<br>
+            Sweep over dirt to clean it.<br>
+            Avoid furniture and other objects.
+        </div>
+        <button onclick="restartGame()">Restart Room</button>
+    </div>
+</div>
+
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+const W = canvas.width;
+const H = canvas.height;
+
+const keys = {};
+
+const player = {
+    x: 110,
+    y: 110,
+    radius: 13,
+    speed: 3.2,
+    angle: 0
+};
+
+const obstacles = [
+    {x: 120, y: 200, w: 180, h: 95, type: "sofa"},
+    {x: 570, y: 75, w: 190, h: 115, type: "bed"},
+    {x: 380, y: 350, w: 125, h: 105, type: "table"},
+    {x: 730, y: 360, w: 100, h: 125, type: "cabinet"},
+    {x: 380, y: 90, w: 95, h: 80, type: "plant"}
+];
+
+let dirt = [];
+let totalDirt = 0;
+let cleaned = 0;
+let startedAt = Date.now();
+let won = false;
+let elapsed = 0;
+
+function collides(x, y, radius) {
+    return obstacles.some(o => {
+        const cx = Math.max(o.x, Math.min(x, o.x + o.w));
+        const cy = Math.max(o.y, Math.min(y, o.y + o.h));
+        const dx = x - cx;
+        const dy = y - cy;
+        return dx * dx + dy * dy < radius * radius;
+    });
+}
+
+function generateDirt() {
+    dirt = [];
+
+    while (dirt.length < 180) {
+        const x = 35 + Math.random() * (W - 70);
+        const y = 35 + Math.random() * (H - 70);
+
+        if (!collides(x, y, 10)) {
+            dirt.push({
+                x,
+                y,
+                size: 1.5 + Math.random() * 3,
+                type: Math.random()
+            });
+        }
+    }
+
+    totalDirt = dirt.length;
+}
+
+function drawFloor() {
+    ctx.fillStyle = "#c6b99f";
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.strokeStyle = "rgba(80,65,45,0.12)";
+    ctx.lineWidth = 1;
+
+    for (let x = 0; x < W; x += 45) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, H);
+        ctx.stroke();
+    }
+
+    for (let y = 0; y < H; y += 45) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(W, y);
+        ctx.stroke();
+    }
+
+    ctx.strokeStyle = "#665b49";
+    ctx.lineWidth = 12;
+    ctx.strokeRect(5, 5, W - 10, H - 10);
+}
+
+function drawDirt() {
+    dirt.forEach(d => {
+        ctx.fillStyle = d.type > .5 ? "#594b3c" : "#776b58";
+
+        if (d.type > .8) {
+            ctx.beginPath();
+            ctx.ellipse(d.x, d.y, d.size * 1.5, d.size, .5, 0, Math.PI * 2);
+            ctx.fill();
+        } else {
+            ctx.beginPath();
+            ctx.arc(d.x, d.y, d.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    });
+}
+
+function drawFurniture() {
+    obstacles.forEach(o => {
+        ctx.save();
+
+        ctx.fillStyle = "rgba(0,0,0,.22)";
+        ctx.fillRect(o.x + 7, o.y + 8, o.w, o.h);
+
+        if (o.type === "sofa") {
+            ctx.fillStyle = "#66516b";
+            ctx.fillRect(o.x, o.y, o.w, o.h);
+            ctx.fillStyle = "#92759a";
+            ctx.fillRect(o.x + 10, o.y + 10, o.w - 20, o.h - 20);
+            ctx.fillStyle = "#b69cbd";
+            ctx.fillRect(o.x + 15, o.y + 15, 65, o.h - 30);
+            ctx.fillRect(o.x + 95, o.y + 15, 65, o.h - 30);
+        }
+
+        if (o.type === "bed") {
+            ctx.fillStyle = "#7e9db0";
+            ctx.fillRect(o.x, o.y, o.w, o.h);
+            ctx.fillStyle = "#eee7d9";
+            ctx.fillRect(o.x + 12, o.y + 12, 75, 35);
+            ctx.fillRect(o.x + 103, o.y + 12, 75, 35);
+            ctx.fillStyle = "#62859a";
+            ctx.fillRect(o.x + 10, o.y + 55, o.w - 20, o.h - 65);
+        }
+
+        if (o.type === "table") {
+            ctx.fillStyle = "#765337";
+            ctx.fillRect(o.x, o.y, o.w, o.h);
+            ctx.fillStyle = "#a8794c";
+            ctx.fillRect(o.x + 7, o.y + 7, o.w - 14, o.h - 14);
+        }
+
+        if (o.type === "cabinet") {
+            ctx.fillStyle = "#765b40";
+            ctx.fillRect(o.x, o.y, o.w, o.h);
+            ctx.strokeStyle = "#c39a6c";
+            ctx.lineWidth = 3;
+            ctx.strokeRect(o.x + 10, o.y + 10, o.w - 20, o.h - 20);
+            ctx.fillStyle = "#d7b17d";
+            ctx.beginPath();
+            ctx.arc(o.x + o.w / 2, o.y + o.h / 2, 4, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        if (o.type === "plant") {
+            ctx.fillStyle = "#795d40";
+            ctx.fillRect(o.x + 20, o.y + 40, 55, 35);
+            ctx.fillStyle = "#34764b";
+            ctx.beginPath();
+            ctx.arc(o.x + 48, o.y + 35, 30, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = "#5a9c59";
+            ctx.beginPath();
+            ctx.arc(o.x + 35, o.y + 25, 15, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        ctx.restore();
+    });
+}
+
+function drawPlayer() {
+    ctx.save();
+    ctx.translate(player.x, player.y);
+    ctx.rotate(player.angle);
+
+    // Broom handle
+    ctx.strokeStyle = "#79502d";
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(37, 0);
+    ctx.stroke();
+
+    // Broom bristles
+    ctx.fillStyle = "#e1c17a";
+    ctx.beginPath();
+    ctx.moveTo(34, -11);
+    ctx.lineTo(48, -9);
+    ctx.lineTo(48, 9);
+    ctx.lineTo(34, 11);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.strokeStyle = "#a17a43";
+    ctx.lineWidth = 1;
+
+    for (let i = -7; i <= 7; i += 4) {
+        ctx.beginPath();
+        ctx.moveTo(38, i);
+        ctx.lineTo(48, i);
+        ctx.stroke();
+    }
+
+    // Player body
+    ctx.fillStyle = "#2687ce";
+    ctx.beginPath();
+    ctx.arc(0, 0, player.radius, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = "#b6e3ff";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    ctx.restore();
+}
+
+function sweepDirt() {
+    const broomX = player.x + Math.cos(player.angle) * 40;
+    const broomY = player.y + Math.sin(player.angle) * 40;
+
+    const oldLength = dirt.length;
+
+    dirt = dirt.filter(d => {
+        return Math.hypot(d.x - broomX, d.y - broomY) > 17;
+    });
+
+    const removed = oldLength - dirt.length;
+
+    if (removed > 0) {
+        cleaned += removed;
+        updateHUD();
+    }
+
+    if (dirt.length === 0 && !won) {
+        won = true;
+        elapsed = Math.floor((Date.now() - startedAt) / 1000);
+        document.getElementById("message").textContent =
+            "ROOM COMPLETELY CLEAN! Congratulations, professional broomer.";
+    }
+}
+
+function updateHUD() {
+    const percent = Math.round((cleaned / totalDirt) * 100);
+
+    document.getElementById("cleanPercent").textContent = percent + "%";
+    document.getElementById("dirtCount").textContent = dirt.length;
+    document.getElementById("progress").style.width = percent + "%";
+}
+
+function updateTimer() {
+    if (won) return;
+
+    const seconds = Math.floor((Date.now() - startedAt) / 1000);
+    const mins = String(Math.floor(seconds / 60)).padStart(2, "0");
+    const secs = String(seconds % 60).padStart(2, "0");
+
+    document.getElementById("timer").textContent = mins + ":" + secs;
+}
+
+function update() {
+    if (won) return;
+
+    let dx = 0;
+    let dy = 0;
+
+    if (keys["w"] || keys["arrowup"]) dy--;
+    if (keys["s"] || keys["arrowdown"]) dy++;
+    if (keys["a"] || keys["arrowleft"]) dx--;
+    if (keys["d"] || keys["arrowright"]) dx++;
+
+    if (dx !== 0 || dy !== 0) {
+        const length = Math.hypot(dx, dy);
+        dx /= length;
+        dy /= length;
+
+        player.angle = Math.atan2(dy, dx);
+    }
+
+    const nextX = player.x + dx * player.speed;
+    const nextY = player.y + dy * player.speed;
+
+    if (
+        nextX > 25 &&
+        nextX < W - 25 &&
+        !collides(nextX, player.y, player.radius)
+    ) {
+        player.x = nextX;
+    }
+
+    if (
+        nextY > 25 &&
+        nextY < H - 25 &&
+        !collides(player.x, nextY, player.radius)
+    ) {
+        player.y = nextY;
+    }
+
+    sweepDirt();
+}
+
+function render() {
+    ctx.clearRect(0, 0, W, H);
+
+    drawFloor();
+    drawDirt();
+    drawFurniture();
+    drawPlayer();
+}
+
+function gameLoop() {
+    update();
+    render();
+    updateTimer();
+    requestAnimationFrame(gameLoop);
+}
+
+function restartGame() {
+    player.x = 65;
+    player.y = 65;
+    player.angle = 0;
+
+    cleaned = 0;
+    won = false;
+    startedAt = Date.now();
+
+    document.getElementById("message").textContent =
+        "Grab your broom and start cleaning!";
+
+    document.getElementById("timer").textContent = "00:00";
+
+    generateDirt();
+    updateHUD();
+}
+
+window.addEventListener("keydown", e => {
+    const key = e.key.toLowerCase();
+
+    if (["arrowup", "arrowdown", "arrowleft", "arrowright", " "].includes(key)) {
+        e.preventDefault();
+    }
+
+    keys[key] = true;
+});
+
+window.addEventListener("keyup", e => {
+    keys[e.key.toLowerCase()] = false;
+});
+
+window.addEventListener("blur", () => {
+    for (const key in keys) keys[key] = false;
+});
+
+generateDirt();
+updateHUD();
+gameLoop();
+</script>
+</body>
+</html>
