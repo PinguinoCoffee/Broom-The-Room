@@ -17,16 +17,19 @@ body {
     background: #0d1117;
     color: #e6edf3;
     font-family: Arial, sans-serif;
-    padding: 25px 15px;
+    padding: 24px 12px;
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-header {
+header, .game-container {
     width: 100%;
     max-width: 1000px;
-    margin-bottom: 20px;
+}
+
+header {
+    margin-bottom: 18px;
 }
 
 h1 {
@@ -41,24 +44,20 @@ h1 {
 }
 
 .game-container {
-    width: 100%;
-    max-width: 1000px;
     background: #161b22;
     border: 1px solid #30363d;
     border-radius: 12px;
-    padding: 15px;
+    padding: 14px;
 }
 
 .hud {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 9px;
     margin-bottom: 12px;
 }
 
 .stat {
-    flex: 1;
-    min-width: 100px;
     background: #0d1117;
     padding: 12px;
     border: 1px solid #30363d;
@@ -68,8 +67,8 @@ h1 {
 .stat small {
     display: block;
     color: #8b949e;
-    font-size: 11px;
-    margin-bottom: 5px;
+    font-size: 10px;
+    margin-bottom: 6px;
 }
 
 .stat strong {
@@ -81,7 +80,7 @@ h1 {
     background: #30363d;
     border-radius: 10px;
     overflow: hidden;
-    margin-bottom: 14px;
+    margin-bottom: 13px;
 }
 
 #progress {
@@ -91,23 +90,31 @@ h1 {
     transition: width .15s;
 }
 
+.canvas-wrap {
+    position: relative;
+    overflow: hidden;
+    border-radius: 7px;
+}
+
 canvas {
     display: block;
     width: 100%;
+    height: auto;
     border: 1px solid #30363d;
     border-radius: 7px;
     touch-action: none;
+    cursor: crosshair;
 }
 
 #message {
-    margin-top: 12px;
-    min-height: 18px;
     color: #3fb950;
     font-size: 13px;
+    margin-top: 12px;
+    min-height: 18px;
 }
 
-.broom-section {
-    margin-top: 17px;
+.section {
+    margin-top: 20px;
 }
 
 .section-title {
@@ -129,11 +136,7 @@ canvas {
     border: 1px solid #30363d;
     cursor: pointer;
     text-align: center;
-    transition: .15s;
-}
-
-.broom:hover {
-    border-color: #8b949e;
+    color: white;
 }
 
 .broom.active {
@@ -143,7 +146,7 @@ canvas {
 
 .broom .emoji {
     display: block;
-    font-size: 23px;
+    font-size: 22px;
     margin-bottom: 5px;
 }
 
@@ -153,8 +156,10 @@ canvas {
 }
 
 .broom small {
+    display: block;
     color: #8b949e;
     font-size: 10px;
+    margin-top: 4px;
 }
 
 .controls {
@@ -176,7 +181,7 @@ button {
     background: #238636;
     border: 1px solid #2ea043;
     color: white;
-    padding: 10px 17px;
+    padding: 10px 16px;
     border-radius: 7px;
     cursor: pointer;
     font-weight: bold;
@@ -186,12 +191,102 @@ button:hover {
     background: #2ea043;
 }
 
+.secondary {
+    background: #21262d;
+    border-color: #30363d;
+}
+
+.secondary:hover {
+    background: #30363d;
+}
+
+.leaderboard {
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 9px;
+    overflow: hidden;
+}
+
+.leaderboard-header {
+    padding: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #30363d;
+}
+
+.leaderboard-header small {
+    color: #8b949e;
+    font-size: 11px;
+}
+
+.player-entry {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 14px;
+    border-bottom: 1px solid #21262d;
+    font-size: 13px;
+}
+
+.player-entry:last-child {
+    border-bottom: none;
+}
+
+.rank {
+    color: #8b949e;
+    display: inline-block;
+    width: 30px;
+}
+
+.time {
+    color: #3fb950;
+    font-weight: bold;
+    font-variant-numeric: tabular-nums;
+}
+
+.empty {
+    text-align: center;
+    padding: 25px;
+    color: #8b949e;
+    font-size: 13px;
+}
+
+.name-input {
+    background: #0d1117;
+    border: 1px solid #30363d;
+    color: white;
+    padding: 10px;
+    border-radius: 7px;
+    outline: none;
+    width: 180px;
+}
+
+.name-input:focus {
+    border-color: #3fb950;
+}
+
+.leaderboard-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
 @media(max-width: 600px) {
-    body { padding: 12px 8px; }
-    .game-container { padding: 8px; }
-    .broom-list { grid-template-columns: repeat(2, 1fr); }
-    .stat { min-width: 75px; }
-    .stat strong { font-size: 15px; }
+    .hud {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .broom-list {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .stat strong {
+        font-size: 16px;
+    }
+
+    .game-container {
+        padding: 8px;
+    }
 }
 </style>
 </head>
@@ -199,7 +294,7 @@ button:hover {
 
 <header>
     <h1>Brooming the Room Simulator</h1>
-    <p class="subtitle">Powered by MONDUY. Driven by an unreasonable passion for cleanliness.</p>
+    <p class="subtitle">MONDUY's cleaning operation. Now with competitive speedrunning.</p>
 </header>
 
 <div class="game-container">
@@ -215,7 +310,7 @@ button:hover {
         </div>
         <div class="stat">
             <small>TIME ELAPSED</small>
-            <strong id="timer">00:00</strong>
+            <strong id="timer">00:00.000</strong>
         </div>
         <div class="stat">
             <small>ROOM NUMBER</small>
@@ -227,23 +322,50 @@ button:hover {
         <div id="progress"></div>
     </div>
 
-    <canvas id="game" width="900" height="560"></canvas>
+    <div class="canvas-wrap">
+        <canvas id="game" width="900" height="560"></canvas>
+    </div>
 
-    <div id="message">MONDUY is ready. Clean this room!</div>
+    <div id="message">MONDUY is ready. Clean the room!</div>
 
-    <div class="broom-section">
-        <div class="section-title">SELECT YOUR BROOM | KEYS 1-0</div>
+    <div class="section">
+        <div class="section-title">BROOM INVENTORY | KEYS 1-0</div>
         <div class="broom-list" id="broomList"></div>
     </div>
 
     <div class="controls">
         <div class="instructions">
-            WASD / ARROW KEYS: Move<br>
-            1-9 / 0: Change broom<br>
-            Sweep dirt by moving your broom over it.<br>
-            Avoid furniture and other objects.
+            WASD / ARROWS: Move<br>
+            MOUSE: Move toward cursor<br>
+            CLICK / DRAG: Set movement destination<br>
+            1-9 / 0: Change broom
         </div>
+
         <button onclick="newRoom()">Generate New Room</button>
+    </div>
+
+    <div class="section">
+        <div class="leaderboard-header">
+            <div>
+                <div class="section-title" style="margin:0">SPEEDRUN LEADERBOARD</div>
+                <small>FASTEST ROOM COMPLETIONS</small>
+            </div>
+            <div class="leaderboard-controls">
+                <button class="secondary" onclick="clearLeaderboard()">Reset</button>
+            </div>
+        </div>
+
+        <div class="leaderboard" id="leaderboard">
+            <div class="empty">No speedruns recorded yet.</div>
+        </div>
+
+        <div style="display:flex;gap:8px;margin-top:12px;align-items:center;flex-wrap:wrap">
+            <input id="playerName" class="name-input" maxlength="18"
+                   placeholder="Your speedrunner name" value="MONDUY">
+            <small style="color:#8b949e;font-size:11px">
+                Your name is saved with your next completion.
+            </small>
+        </div>
     </div>
 
 </div>
@@ -255,11 +377,11 @@ const ctx = canvas.getContext("2d");
 const W = 900;
 const H = 560;
 
-const PLAYER_IMAGE_URL =
+const IMAGE_URL =
 "https://raw.githubusercontent.com/PinguinoCoffee/Broom-The-Room/refs/heads/main/MONDUY.jpg";
 
 const monduy = new Image();
-monduy.src = PLAYER_IMAGE_URL;
+monduy.src = IMAGE_URL;
 
 const keys = {};
 
@@ -272,32 +394,53 @@ const player = {
 };
 
 const brooms = [
-    {name:"Basic Broom", emoji:"🧹", speed:3.1, range:17, width:1, color:"#c69b55"},
-    {name:"Straw Broom", emoji:"🌾", speed:3.3, range:23, width:1, color:"#c9a45b"},
-    {name:"Wide Broom", emoji:"🧹", speed:2.8, range:31, width:1.2, color:"#d9b76e"},
-    {name:"Dust Sweeper", emoji:"🪶", speed:3.8, range:13, width:1, color:"#d6d6d6"},
-    {name:"Industrial", emoji:"⚙️", speed:2.7, range:27, width:1.8, color:"#aaaaaa"},
-    {name:"Golden Broom", emoji:"✨", speed:3.6, range:25, width:1.3, color:"#ffd700"},
-    {name:"Mega Broom", emoji:"🧹", speed:2.5, range:43, width:1.8, color:"#b98aff"},
-    {name:"Speed Broom", emoji:"💨", speed:5.0, range:15, width:1, color:"#80d9ff"},
-    {name:"Professional", emoji:"🏆", speed:4.0, range:35, width:1.5, color:"#3fb950"},
-    {name:"THE MONDUY", emoji:"👑", speed:5.5, range:55, width:2, color:"#ff5555"}
+    {name:"Basic Broom", emoji:"🧹", speed:3.1, range:17, width:1},
+    {name:"Straw Broom", emoji:"🌾", speed:3.3, range:23, width:1},
+    {name:"Wide Broom", emoji:"🧹", speed:2.8, range:31, width:1.2},
+    {name:"Dust Sweeper", emoji:"🪶", speed:3.8, range:13, width:1},
+    {name:"Industrial", emoji:"⚙️", speed:2.7, range:27, width:1.8},
+    {name:"Golden Broom", emoji:"✨", speed:3.6, range:25, width:1.3},
+    {name:"Mega Broom", emoji:"🧹", speed:2.5, range:43, width:1.8},
+    {name:"Speed Broom", emoji:"💨", speed:5, range:15, width:1},
+    {name:"Professional", emoji:"🏆", speed:4, range:35, width:1.5},
+    {name:"THE MONDUY", emoji:"👑", speed:5.5, range:55, width:2}
+];
+
+const bookPalette = [
+    "#a74b4b", "#557d9d", "#d3b66a",
+    "#54815e", "#9471a5", "#bd7951"
 ];
 
 let selectedBroom = 0;
 let obstacles = [];
 let dirt = [];
 let particles = [];
+let confetti = [];
 
 let cleaned = 0;
 let totalDirt = 0;
 let roomNumber = 0;
-let startedAt = Date.now();
 let won = false;
-let lastSweep = 0;
 
-const rand = (min, max) =>
+let startedAt = 0;
+let finishTime = 0;
+let animationRunning = false;
+
+let pointerTarget = null;
+let pointerDown = false;
+
+const random = (min, max) =>
     Math.random() * (max - min) + min;
+
+function formatTime(ms) {
+    const minutes = Math.floor(ms / 60000);
+    const seconds = Math.floor(ms / 1000) % 60;
+    const milliseconds = Math.floor(ms % 1000);
+
+    return String(minutes).padStart(2, "0") + ":" +
+           String(seconds).padStart(2, "0") + "." +
+           String(milliseconds).padStart(3, "0");
+}
 
 function circleRect(x, y, r, o) {
     const cx = Math.max(o.x, Math.min(x, o.x + o.w));
@@ -310,29 +453,31 @@ function collides(x, y, radius) {
     return obstacles.some(o => circleRect(x, y, radius, o));
 }
 
+// RANDOM ROOM GENERATION
+
 function generateRoom() {
     obstacles = [];
 
-    const types = ["sofa", "bed", "table", "cabinet", "plant", "bookshelf", "chair"];
-    const amount = Math.floor(rand(5, 10));
+    const types = [
+        "sofa", "bed", "table", "cabinet",
+        "plant", "bookshelf", "chair"
+    ];
+
+    const amount = Math.floor(random(5, 10));
 
     for (let i = 0; i < amount; i++) {
-        let placed = false;
-
-        for (let attempt = 0; attempt < 80; attempt++) {
-            const w = rand(65, 155);
-            const h = rand(60, 120);
-            const x = rand(45, W - w - 45);
-            const y = rand(45, H - h - 45);
+        for (let attempt = 0; attempt < 100; attempt++) {
+            const w = random(65, 150);
+            const h = random(60, 120);
+            const x = random(35, W - w - 35);
+            const y = random(35, H - h - 35);
 
             const candidate = {x, y, w, h};
 
-            // Keep the player spawn area clear.
             if (Math.hypot(x + w / 2 - 70, y + h / 2 - 70) < 145) {
                 continue;
             }
 
-            // Prevent furniture overlap.
             if (obstacles.some(o =>
                 x < o.x + o.w + 18 &&
                 x + w + 18 > o.x &&
@@ -340,38 +485,60 @@ function generateRoom() {
                 y + h + 18 > o.y
             )) continue;
 
-            obstacles.push({
-                ...candidate,
-                type: types[Math.floor(Math.random() * types.length)],
-                rotation: Math.floor(rand(0, 4))
-            });
+            const type = types[Math.floor(Math.random() * types.length)];
 
-            placed = true;
+            const furniture = {
+                ...candidate,
+                type,
+                bookColors: [],
+                bookRows: []
+            };
+
+            // Generate bookshelf appearance ONCE.
+            // This prevents the books from flashing every frame.
+            if (type === "bookshelf") {
+                const rows = Math.floor((h - 20) / 25);
+
+                for (let r = 0; r < rows; r++) {
+                    const colors = [];
+
+                    for (let c = 0; c < Math.floor((w - 20) / 20); c++) {
+                        colors.push(
+                            bookPalette[Math.floor(Math.random() * bookPalette.length)]
+                        );
+                    }
+
+                    furniture.bookRows.push(colors);
+                }
+            }
+
+            obstacles.push(furniture);
             break;
         }
-
-        if (!placed) continue;
     }
 }
 
 function generateDirt() {
     dirt = [];
 
-    const amount = Math.floor(rand(170, 260));
+    const amount = Math.floor(random(170, 260));
 
     for (let i = 0; i < amount; i++) {
-        for (let attempt = 0; attempt < 30; attempt++) {
-            const x = rand(30, W - 30);
-            const y = rand(30, H - 30);
+        for (let attempt = 0; attempt < 40; attempt++) {
+            const x = random(30, W - 30);
+            const y = random(30, H - 30);
 
-            if (!collides(x, y, 8) && Math.hypot(x - 70, y - 70) > 40) {
+            if (!collides(x, y, 8) &&
+                Math.hypot(x - 70, y - 70) > 40) {
+
                 dirt.push({
                     x,
                     y,
-                    size: rand(1.5, 4),
+                    size: random(1.5, 4),
                     type: Math.random(),
-                    rotation: rand(0, 6)
+                    rotation: random(0, Math.PI * 2)
                 });
+
                 break;
             }
         }
@@ -380,51 +547,10 @@ function generateDirt() {
     totalDirt = dirt.length;
 }
 
-function newRoom() {
-    roomNumber++;
+// BROOMS
 
-    cleaned = 0;
-    won = false;
-    startedAt = Date.now();
-
-    player.x = 70;
-    player.y = 70;
-    player.angle = 0;
-
-    particles = [];
-
-    generateRoom();
-    generateDirt();
-    updateHUD();
-
-    document.getElementById("roomNumber").textContent = roomNumber;
-    document.getElementById("timer").textContent = "00:00";
-    document.getElementById("message").textContent =
-        "New room generated! MONDUY has work to do.";
-
-    render();
-}
-
-function selectBroom(index) {
-    selectedBroom = index;
-
-    const broom = brooms[index];
-
-    player.speed = broom.speed;
-
-    document.querySelectorAll(".broom").forEach((el, i) => {
-        el.classList.toggle("active", i === index);
-    });
-
-    document.getElementById("message").textContent =
-        "Selected: " + broom.name;
-
-    render();
-}
-
-function buildBroomList() {
+function buildBrooms() {
     const list = document.getElementById("broomList");
-
     list.innerHTML = "";
 
     brooms.forEach((b, i) => {
@@ -438,18 +564,32 @@ function buildBroomList() {
         `;
 
         el.addEventListener("click", () => selectBroom(i));
-
         list.appendChild(el);
     });
 
     selectBroom(0);
 }
 
+function selectBroom(i) {
+    selectedBroom = i;
+    player.speed = brooms[i].speed;
+
+    document.querySelectorAll(".broom").forEach((el, index) => {
+        el.classList.toggle("active", index === i);
+    });
+
+    document.getElementById("message").textContent =
+        "Equipped: " + brooms[i].name;
+
+    render();
+}
+
+// FLOOR
+
 function drawFloor() {
     ctx.fillStyle = "#c6b99f";
     ctx.fillRect(0, 0, W, H);
 
-    // Floorboard pattern
     ctx.strokeStyle = "rgba(90,70,45,.16)";
     ctx.lineWidth = 1;
 
@@ -462,20 +602,23 @@ function drawFloor() {
 
     for (let y = 0; y < H; y += 90) {
         for (let x = 0; x < W; x += 150) {
+            const offset = y % 180 === 0 ? 0 : 75;
+
             ctx.beginPath();
-            ctx.moveTo(x + (y % 180 === 0 ? 0 : 75), y);
-            ctx.lineTo(x + (y % 180 === 0 ? 0 : 75), y + 45);
+            ctx.moveTo(x + offset, y);
+            ctx.lineTo(x + offset, y + 45);
             ctx.stroke();
         }
     }
 
-    // Walls
     ctx.fillStyle = "#665644";
     ctx.fillRect(0, 0, W, 12);
     ctx.fillRect(0, H - 12, W, 12);
     ctx.fillRect(0, 0, 12, H);
     ctx.fillRect(W - 12, 0, 12, H);
 }
+
+// DIRT
 
 function drawDirt() {
     dirt.forEach(d => {
@@ -485,19 +628,20 @@ function drawDirt() {
 
         ctx.fillStyle = d.type > .6 ? "#514535" : "#76634c";
 
+        ctx.beginPath();
+
         if (d.type > .8) {
-            ctx.beginPath();
             ctx.ellipse(0, 0, d.size * 1.7, d.size, .5, 0, Math.PI * 2);
-            ctx.fill();
         } else {
-            ctx.beginPath();
             ctx.arc(0, 0, d.size, 0, Math.PI * 2);
-            ctx.fill();
         }
 
+        ctx.fill();
         ctx.restore();
     });
 }
+
+// FURNITURE
 
 function drawFurniture() {
     obstacles.forEach(o => {
@@ -535,44 +679,54 @@ function drawFurniture() {
             ctx.beginPath();
             ctx.arc(o.x + o.w / 2 - 10, o.y + o.h / 2 - 10, 13, 0, Math.PI * 2);
             ctx.fill();
-        } else if (o.type === "bed") {
+        }
+
+        else if (o.type === "bed") {
             ctx.fillRect(o.x + 8, o.y + 8, o.w - 16, 38);
+
             ctx.fillStyle = "#eee7d9";
             ctx.fillRect(o.x + 12, o.y + 12, (o.w - 30) / 2, 28);
             ctx.fillRect(o.x + o.w / 2 + 3, o.y + 12, (o.w - 30) / 2, 28);
+
             ctx.fillStyle = accent;
             ctx.fillRect(o.x + 8, o.y + 52, o.w - 16, o.h - 60);
-        } else if (o.type === "sofa") {
+        }
+
+        else if (o.type === "sofa") {
             ctx.fillRect(o.x + 8, o.y + 8, o.w - 16, o.h - 16);
+
             ctx.fillStyle = accent;
             ctx.fillRect(o.x + 14, o.y + 14, (o.w - 35) / 2, o.h - 28);
             ctx.fillRect(o.x + o.w / 2 + 3, o.y + 14, (o.w - 35) / 2, o.h - 28);
-        } else if (o.type === "bookshelf") {
-            for (let y = 12; y < o.h - 10; y += 25) {
-                ctx.fillStyle = accent;
-                ctx.fillRect(o.x + 8, o.y + y, o.w - 16, 3);
+        }
 
-                for (let x = 14; x < o.w - 15; x += 20) {
-                    ctx.fillStyle = ["#a74b4b", "#557d9d", "#d3b66a"][Math.floor(Math.random() * 3)];
-                    ctx.fillRect(o.x + x, o.y + y - 17, 11, 17);
-                }
-            }
-        } else {
+        else if (o.type === "bookshelf") {
+            o.bookRows.forEach((row, r) => {
+                const y = o.y + 12 + r * 25;
+
+                ctx.fillStyle = accent;
+                ctx.fillRect(o.x + 8, y + 1, o.w - 16, 3);
+
+                row.forEach((color, c) => {
+                    ctx.fillStyle = color;
+                    ctx.fillRect(o.x + 14 + c * 20, y - 17, 11, 17);
+                });
+            });
+        }
+
+        else {
             ctx.fillRect(o.x + 9, o.y + 9, o.w - 18, o.h - 18);
 
             ctx.strokeStyle = "#e2c59a";
             ctx.lineWidth = 2;
             ctx.strokeRect(o.x + 12, o.y + 12, o.w - 24, o.h - 24);
-
-            if (o.type === "chair") {
-                ctx.fillStyle = "#593c2e";
-                ctx.fillRect(o.x + o.w / 2 - 8, o.y + o.h - 10, 16, 10);
-            }
         }
 
         ctx.restore();
     });
 }
+
+// MONDUY + BROOM
 
 function drawPlayer() {
     const broom = brooms[selectedBroom];
@@ -582,7 +736,7 @@ function drawPlayer() {
     ctx.rotate(player.angle);
 
     // Broom handle
-    ctx.strokeStyle = broom.color;
+    ctx.strokeStyle = selectedBroom === 9 ? "#ff5555" : "#79502d";
     ctx.lineWidth = selectedBroom >= 6 ? 7 : 5;
     ctx.lineCap = "round";
 
@@ -591,10 +745,12 @@ function drawPlayer() {
     ctx.lineTo(42, 0);
     ctx.stroke();
 
-    // Broom bristles
+    // Bristles
     const size = 9 + broom.width * 5;
 
-    ctx.fillStyle = broom.color;
+    ctx.fillStyle = selectedBroom === 9 ? "#ff5555" :
+                    selectedBroom === 5 ? "#ffd700" : "#e1c17a";
+
     ctx.beginPath();
     ctx.moveTo(37, -size);
     ctx.lineTo(53, -size * .8);
@@ -603,7 +759,6 @@ function drawPlayer() {
     ctx.closePath();
     ctx.fill();
 
-    // Bristle lines
     ctx.strokeStyle = "#79502d";
     ctx.lineWidth = 1;
 
@@ -614,7 +769,7 @@ function drawPlayer() {
         ctx.stroke();
     }
 
-    // MONDUY player shadow
+    // Character shadow
     ctx.fillStyle = "rgba(0,0,0,.3)";
     ctx.beginPath();
     ctx.arc(2, 4, 20, 0, Math.PI * 2);
@@ -627,8 +782,13 @@ function drawPlayer() {
     ctx.clip();
 
     if (monduy.complete && monduy.naturalWidth > 0) {
-        ctx.drawImage(monduy, -player.radius, -player.radius,
-            player.radius * 2, player.radius * 2);
+        ctx.drawImage(
+            monduy,
+            -player.radius,
+            -player.radius,
+            player.radius * 2,
+            player.radius * 2
+        );
     } else {
         ctx.fillStyle = "#2687ce";
         ctx.fillRect(-player.radius, -player.radius, 36, 36);
@@ -645,15 +805,17 @@ function drawPlayer() {
     ctx.restore();
 }
 
+// SWEEP PARTICLES
+
 function addParticles(x, y) {
     for (let i = 0; i < 3; i++) {
         particles.push({
             x,
             y,
-            vx: rand(-1.5, 1.5),
-            vy: rand(-1.5, 1.5),
+            vx: random(-1.5, 1.5),
+            vy: random(-1.5, 1.5),
             life: 20,
-            size: rand(1, 3)
+            size: random(1, 3)
         });
     }
 }
@@ -662,19 +824,296 @@ function drawParticles() {
     particles.forEach(p => {
         ctx.globalAlpha = p.life / 20;
         ctx.fillStyle = "#d9c69d";
+
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx.fill();
-    });
 
-    ctx.globalAlpha = 1;
-
-    particles = particles.filter(p => {
         p.x += p.vx;
         p.y += p.vy;
         p.life--;
-        return p.life > 0;
     });
+
+    ctx.globalAlpha = 1;
+    particles = particles.filter(p => p.life > 0);
+}
+
+// CONFETTI CELEBRATION
+
+function launchConfetti() {
+    confetti = [];
+
+    const colors = [
+        "#ff5555", "#ffd700", "#3fb950",
+        "#58a6ff", "#bc8cff", "#ff8c42",
+        "#ffffff", "#ff69b4"
+    ];
+
+    for (let i = 0; i < 220; i++) {
+        confetti.push({
+            x: random(0, W),
+            y: random(-H, 0),
+            vx: random(-3, 3),
+            vy: random(2, 7),
+            rotation: random(0, 6),
+            spin: random(-.15, .15),
+            size: random(4, 9),
+            color: colors[Math.floor(Math.random() * colors.length)],
+            life: random(180, 350)
+        });
+    }
+}
+
+function drawConfetti() {
+    confetti.forEach(c => {
+        ctx.save();
+        ctx.translate(c.x, c.y);
+        ctx.rotate(c.rotation);
+
+        ctx.fillStyle = c.color;
+        ctx.fillRect(-c.size / 2, -c.size / 2, c.size, c.size * 1.7);
+
+        ctx.restore();
+
+        c.x += c.vx;
+        c.y += c.vy;
+        c.vy += .035;
+        c.rotation += c.spin;
+        c.life--;
+    });
+
+    confetti = confetti.filter(c =>
+        c.life > 0 && c.y < H + 30
+    );
+}
+
+// LEADERBOARD
+
+const STORAGE_KEY = "monduy_broom_speedruns_v1";
+
+function getLeaderboard() {
+    try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        return Array.isArray(saved) ? saved : [];
+    } catch {
+        return [];
+    }
+}
+
+function saveLeaderboard(entries) {
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+    } catch {
+        document.getElementById("message").textContent =
+            "Could not save leaderboard. Browser storage may be disabled.";
+    }
+}
+
+function recordScore(ms) {
+    const name = document.getElementById("playerName").value.trim()
+        .replace(/[<>]/g, "").slice(0, 18) || "MONDUY";
+
+    const entries = getLeaderboard();
+
+    entries.push({
+        name,
+        time: ms,
+        date: new Date().toISOString()
+    });
+
+    entries.sort((a, b) => a.time - b.time);
+
+    const best = entries.slice(0, 10);
+
+    saveLeaderboard(best);
+    renderLeaderboard();
+}
+
+function renderLeaderboard() {
+    const entries = getLeaderboard();
+    const board = document.getElementById("leaderboard");
+
+    if (!entries.length) {
+        board.innerHTML =
+            '<div class="empty">No speedruns recorded yet. Be the first!</div>';
+        return;
+    }
+
+    board.innerHTML = "";
+
+    entries.slice(0, 10).forEach((entry, i) => {
+        const row = document.createElement("div");
+        row.className = "player-entry";
+
+        const left = document.createElement("span");
+        const rank = document.createElement("span");
+        rank.className = "rank";
+        rank.textContent = "#" + (i + 1);
+
+        const name = document.createElement("span");
+        name.textContent = entry.name;
+
+        left.append(rank, name);
+
+        const time = document.createElement("span");
+        time.className = "time";
+        time.textContent = formatTime(entry.time);
+
+        row.append(left, time);
+        board.appendChild(row);
+    });
+}
+
+function clearLeaderboard() {
+    if (!confirm("Delete all locally saved speedrun records?")) return;
+
+    try {
+        localStorage.removeItem(STORAGE_KEY);
+    } catch {}
+
+    renderLeaderboard();
+}
+
+// VICTORY
+
+function winGame() {
+    if (won) return;
+
+    won = true;
+
+    finishTime = Date.now() - startedAt;
+
+    document.getElementById("timer").textContent =
+        formatTime(finishTime);
+
+    document.getElementById("message").textContent =
+        "ROOM COMPLETED! MONDUY HAS DEFEATED THE DIRT. TIME: " +
+        formatTime(finishTime);
+
+    document.getElementById("message").style.color = "#3fb950";
+
+    recordScore(finishTime);
+    launchConfetti();
+}
+
+// HUD
+
+function updateHUD() {
+    const percentage = totalDirt
+        ? Math.round(cleaned / totalDirt * 100)
+        : 100;
+
+    document.getElementById("percent").textContent = percentage + "%";
+    document.getElementById("remaining").textContent = dirt.length;
+    document.getElementById("progress").style.width = percentage + "%";
+}
+
+// TIMER
+
+function updateTimer() {
+    if (won || !startedAt) return;
+
+    document.getElementById("timer").textContent =
+        formatTime(Date.now() - startedAt);
+}
+
+// CURSOR CONTROLS
+
+function canvasPosition(e) {
+    const rect = canvas.getBoundingClientRect();
+
+    return {
+        x: (e.clientX - rect.left) * W / rect.width,
+        y: (e.clientY - rect.top) * H / rect.height
+    };
+}
+
+canvas.addEventListener("pointermove", e => {
+    if (e.pointerType === "mouse" && e.buttons === 0) {
+        pointerTarget = canvasPosition(e);
+    } else if (pointerDown) {
+        pointerTarget = canvasPosition(e);
+    }
+});
+
+canvas.addEventListener("pointerdown", e => {
+    pointerDown = true;
+    pointerTarget = canvasPosition(e);
+    canvas.setPointerCapture(e.pointerId);
+});
+
+canvas.addEventListener("pointerup", () => {
+    pointerDown = false;
+});
+
+canvas.addEventListener("pointercancel", () => {
+    pointerDown = false;
+    pointerTarget = null;
+});
+
+canvas.addEventListener("pointerleave", e => {
+    if (e.pointerType === "mouse" && !pointerDown) {
+        pointerTarget = null;
+    }
+});
+
+// MOVEMENT
+
+function update() {
+    if (!won) {
+        let dx = 0;
+        let dy = 0;
+
+        // Keyboard movement
+        if (keys.w || keys.arrowup) dy--;
+        if (keys.s || keys.arrowdown) dy++;
+        if (keys.a || keys.arrowleft) dx--;
+        if (keys.d || keys.arrowright) dx++;
+
+        // Cursor movement if keyboard is not being used
+        if (!dx && !dy && pointerTarget) {
+            const tx = pointerTarget.x - player.x;
+            const ty = pointerTarget.y - player.y;
+            const distance = Math.hypot(tx, ty);
+
+            if (distance > 10) {
+                dx = tx / distance;
+                dy = ty / distance;
+            } else {
+                pointerTarget = null;
+            }
+        }
+
+        if (dx || dy) {
+            const length = Math.hypot(dx, dy);
+
+            dx /= length;
+            dy /= length;
+
+            player.angle = Math.atan2(dy, dx);
+
+            const nextX = player.x + dx * player.speed;
+            const nextY = player.y + dy * player.speed;
+
+            if (
+                nextX > 28 &&
+                nextX < W - 28 &&
+                !collides(nextX, player.y, player.radius)
+            ) {
+                player.x = nextX;
+            }
+
+            if (
+                nextY > 28 &&
+                nextY < H - 28 &&
+                !collides(player.x, nextY, player.radius)
+            ) {
+                player.y = nextY;
+            }
+
+            sweep();
+        }
+    }
 }
 
 function sweep() {
@@ -701,7 +1140,6 @@ function sweep() {
     if (removed > 0) {
         cleaned += removed;
         updateHUD();
-        lastSweep = Date.now();
 
         if (dirt.length === 0) {
             winGame();
@@ -709,75 +1147,41 @@ function sweep() {
     }
 }
 
-function winGame() {
-    won = true;
+// NEW ROOM
 
+function newRoom() {
+    roomNumber++;
+
+    cleaned = 0;
+    won = false;
+    startedAt = Date.now();
+    finishTime = 0;
+
+    player.x = 70;
+    player.y = 70;
+    player.angle = 0;
+
+    pointerTarget = null;
+    pointerDown = false;
+
+    particles = [];
+    confetti = [];
+
+    generateRoom();
+    generateDirt();
+
+    document.getElementById("roomNumber").textContent = roomNumber;
+    document.getElementById("timer").textContent = "00:00.000";
     document.getElementById("message").textContent =
-        "ROOM CLEANED! MONDUY HAS DEFEATED THE DIRT.";
+        "New room generated. Get sweeping!";
 
     document.getElementById("message").style.color = "#3fb950";
+
+    updateHUD();
+    render();
 }
 
-function updateHUD() {
-    const percentage = totalDirt ?
-        Math.round(cleaned / totalDirt * 100) : 100;
-
-    document.getElementById("percent").textContent = percentage + "%";
-    document.getElementById("remaining").textContent = dirt.length;
-    document.getElementById("progress").style.width = percentage + "%";
-}
-
-function updateTimer() {
-    if (won) return;
-
-    const seconds = Math.floor((Date.now() - startedAt) / 1000);
-
-    const min = String(Math.floor(seconds / 60)).padStart(2, "0");
-    const sec = String(seconds % 60).padStart(2, "0");
-
-    document.getElementById("timer").textContent = min + ":" + sec;
-}
-
-function update() {
-    if (won) return;
-
-    let dx = 0;
-    let dy = 0;
-
-    if (keys.w || keys.arrowup) dy--;
-    if (keys.s || keys.arrowdown) dy++;
-    if (keys.a || keys.arrowleft) dx--;
-    if (keys.d || keys.arrowright) dx++;
-
-    if (dx || dy) {
-        const length = Math.hypot(dx, dy);
-        dx /= length;
-        dy /= length;
-
-        player.angle = Math.atan2(dy, dx);
-    }
-
-    const nextX = player.x + dx * player.speed;
-    const nextY = player.y + dy * player.speed;
-
-    if (
-        nextX > 28 &&
-        nextX < W - 28 &&
-        !collides(nextX, player.y, player.radius)
-    ) {
-        player.x = nextX;
-    }
-
-    if (
-        nextY > 28 &&
-        nextY < H - 28 &&
-        !collides(player.x, nextY, player.radius)
-    ) {
-        player.y = nextY;
-    }
-
-    if (dx || dy) sweep();
-}
+// RENDER
 
 function render() {
     ctx.clearRect(0, 0, W, H);
@@ -787,23 +1191,30 @@ function render() {
     drawFurniture();
     drawParticles();
     drawPlayer();
+    drawConfetti();
 }
 
-function loop() {
+function gameLoop() {
     update();
     render();
     updateTimer();
-    requestAnimationFrame(loop);
+
+    requestAnimationFrame(gameLoop);
 }
+
+// KEYBOARD
 
 window.addEventListener("keydown", e => {
     const key = e.key.toLowerCase();
 
-    if (["arrowup", "arrowdown", "arrowleft", "arrowright", " "].includes(key)) {
+    if ([
+        "arrowup", "arrowdown",
+        "arrowleft", "arrowright", " "
+    ].includes(key)) {
         e.preventDefault();
     }
 
-    if (/^[0-9]$/.test(key)) {
+    if (/^[0-9]$/.test(key) && !e.repeat) {
         selectBroom(key === "0" ? 9 : Number(key) - 1);
     }
 
@@ -816,13 +1227,17 @@ window.addEventListener("keyup", e => {
 
 window.addEventListener("blur", () => {
     Object.keys(keys).forEach(k => keys[k] = false);
+    pointerTarget = null;
+    pointerDown = false;
 });
 
-monduy.onload = () => render();
+// START
 
-buildBroomList();
+buildBrooms();
+renderLeaderboard();
 newRoom();
-loop();
+gameLoop();
 </script>
+
 </body>
 </html>
