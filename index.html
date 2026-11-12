@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,65 +6,291 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0d1117">
 <title>Brooming the Room Simulator</title>
-
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:#0d1117;color:#e6edf3;font-family:Arial,sans-serif;padding:24px 12px;display:flex;flex-direction:column;align-items:center}
-header,.game-container{width:100%;max-width:1000px}
-header{margin-bottom:18px}
-h1{font-size:25px;letter-spacing:-1px}
-.subtitle{color:#8b949e;font-size:13px;margin-top:6px}
-.game-container{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:14px}
-.hud{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:12px}
-.stat{background:#0d1117;padding:12px;border:1px solid #30363d;border-radius:8px}
-.stat small{display:block;color:#8b949e;font-size:10px;margin-bottom:6px}
-.stat strong{font-size:19px}
-.progress-container{height:7px;background:#30363d;border-radius:10px;overflow:hidden;margin-bottom:13px}
-#progress{width:0%;height:100%;background:#3fb950;transition:width .15s}
-.canvas-wrap{position:relative;overflow:hidden;border-radius:7px}
-canvas{display:block;width:100%;height:auto;border:1px solid #30363d;border-radius:7px;touch-action:none;cursor:crosshair}
-#message{color:#3fb950;font-size:13px;margin-top:12px;min-height:18px}
-.section{margin-top:20px}
-.section-title{font-size:13px;font-weight:bold;margin-bottom:10px}
-.broom-list{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
-.broom{padding:10px 5px;border-radius:7px;background:#0d1117;border:1px solid #30363d;cursor:pointer;text-align:center;color:white}
-.broom.active{border-color:#3fb950;background:#172a20}
-.broom .emoji{display:block;font-size:22px;margin-bottom:5px}
-.broom b{display:block;font-size:11px}
-.broom small{display:block;color:#8b949e;font-size:10px;margin-top:4px}
-.controls{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-top:17px}
-.instructions{color:#8b949e;font-size:12px;line-height:1.8}
-button{background:#238636;border:1px solid #2ea043;color:white;padding:10px 16px;border-radius:7px;cursor:pointer;font-weight:bold}
-button:hover{background:#2ea043}
-.secondary{background:#21262d;border-color:#30363d}
-.secondary:hover{background:#30363d}
-.leaderboard{background:#0d1117;border:1px solid #30363d;border-radius:9px;overflow:hidden}
-.leaderboard-header{padding:14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #30363d}
-.leaderboard-header small{color:#8b949e;font-size:11px}
-.player-entry{display:flex;justify-content:space-between;padding:12px 14px;border-bottom:1px solid #21262d;font-size:13px}
-.player-entry:last-child{border-bottom:none}
-.rank{color:#8b949e;display:inline-block;width:30px}
-.time{color:#3fb950;font-weight:bold;font-variant-numeric:tabular-nums}
-.empty{text-align:center;padding:25px;color:#8b949e;font-size:13px}
-.name-input{background:#0d1117;border:1px solid #30363d;color:white;padding:10px;border-radius:7px;outline:none;width:180px}
-.name-input:focus{border-color:#3fb950}
-.leaderboard-controls{display:flex;gap:8px;align-items:center}
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
 
-/* UPDATE LOG */
-.update-log{margin-top:22px;background:#0d1117;border:1px solid #30363d;border-radius:10px;overflow:hidden}
-.update-log-header{padding:15px;border-bottom:1px solid #30363d;display:flex;justify-content:space-between;align-items:center}
-.update-log-header h2{font-size:14px}
-.update-log-header span{font-size:10px;color:#8b949e}
-.update-entry{padding:16px;border-bottom:1px solid #21262d}
-.update-entry:last-child{border-bottom:0}
-.update-entry-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}
-.update-entry h3{font-size:13px}
-.update-version{font-size:10px;color:#58a6ff;background:#172b45;padding:4px 7px;border-radius:5px;white-space:nowrap}
-.update-date{font-size:11px;color:#8b949e;margin-bottom:8px}
-.update-entry ul{padding-left:18px;color:#c9d1d9;font-size:12px;line-height:1.9}
-.update-entry p{font-size:12px;color:#8b949e;line-height:1.7}
+body {
+    background: #0d1117;
+    color: #e6edf3;
+    font-family: Arial, sans-serif;
+    padding: 24px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
 
-/* CHARACTER SELECT + MAKER */
+header, .game-container {
+    width: 100%;
+    max-width: 1000px;
+}
+
+header {
+    margin-bottom: 18px;
+}
+
+h1 {
+    font-size: 25px;
+    letter-spacing: -1px;
+}
+
+.subtitle {
+    color: #8b949e;
+    font-size: 13px;
+    margin-top: 6px;
+}
+
+.game-container {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 12px;
+    padding: 14px;
+}
+
+.hud {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 9px;
+    margin-bottom: 12px;
+}
+
+.stat {
+    background: #0d1117;
+    padding: 12px;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+}
+
+.stat small {
+    display: block;
+    color: #8b949e;
+    font-size: 10px;
+    margin-bottom: 6px;
+}
+
+.stat strong {
+    font-size: 19px;
+}
+
+.progress-container {
+    height: 7px;
+    background: #30363d;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 13px;
+}
+
+#progress {
+    width: 0%;
+    height: 100%;
+    background: #3fb950;
+    transition: width .15s;
+}
+
+.canvas-wrap {
+    position: relative;
+    overflow: hidden;
+    border-radius: 7px;
+}
+
+canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 1px solid #30363d;
+    border-radius: 7px;
+    touch-action: none;
+    cursor: crosshair;
+}
+
+#message {
+    color: #3fb950;
+    font-size: 13px;
+    margin-top: 12px;
+    min-height: 18px;
+}
+
+.section {
+    margin-top: 20px;
+}
+
+.section-title {
+    font-size: 13px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.broom-list {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+}
+
+.broom {
+    padding: 10px 5px;
+    border-radius: 7px;
+    background: #0d1117;
+    border: 1px solid #30363d;
+    cursor: pointer;
+    text-align: center;
+    color: white;
+}
+
+.broom.active {
+    border-color: #3fb950;
+    background: #172a20;
+}
+
+.broom .emoji {
+    display: block;
+    font-size: 22px;
+    margin-bottom: 5px;
+}
+
+.broom b {
+    display: block;
+    font-size: 11px;
+}
+
+.broom small {
+    display: block;
+    color: #8b949e;
+    font-size: 10px;
+    margin-top: 4px;
+}
+
+.controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 17px;
+}
+
+.instructions {
+    color: #8b949e;
+    font-size: 12px;
+    line-height: 1.8;
+}
+
+button {
+    background: #238636;
+    border: 1px solid #2ea043;
+    color: white;
+    padding: 10px 16px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+button:hover {
+    background: #2ea043;
+}
+
+.secondary {
+    background: #21262d;
+    border-color: #30363d;
+}
+
+.secondary:hover {
+    background: #30363d;
+}
+
+.leaderboard {
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 9px;
+    overflow: hidden;
+}
+
+.leaderboard-header {
+    padding: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #30363d;
+}
+
+.leaderboard-header small {
+    color: #8b949e;
+    font-size: 11px;
+}
+
+.player-entry {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 14px;
+    border-bottom: 1px solid #21262d;
+    font-size: 13px;
+}
+
+.player-entry:last-child {
+    border-bottom: none;
+}
+
+.rank {
+    color: #8b949e;
+    display: inline-block;
+    width: 30px;
+}
+
+.time {
+    color: #3fb950;
+    font-weight: bold;
+    font-variant-numeric: tabular-nums;
+}
+
+.empty {
+    text-align: center;
+    padding: 25px;
+    color: #8b949e;
+    font-size: 13px;
+}
+
+.name-input {
+    background: #0d1117;
+    border: 1px solid #30363d;
+    color: white;
+    padding: 10px;
+    border-radius: 7px;
+    outline: none;
+    width: 180px;
+}
+
+.name-input:focus {
+    border-color: #3fb950;
+}
+
+.leaderboard-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+@media(max-width: 600px) {
+    .hud {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .broom-list {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .stat strong {
+        font-size: 16px;
+    }
+
+    .game-container {
+        padding: 8px;
+    }
+}
+
+
+/* CHARACTER SELECT + CHARACTER MAKER */
 .screen-overlay{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(5,8,13,.96);overflow:auto}
 .screen-panel{width:min(940px,100%);padding:26px;background:#161b22;border:1px solid #30363d;border-radius:16px;box-shadow:0 24px 90px #0009}
 .screen-kicker{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#3fb950}
@@ -75,1085 +302,1288 @@ button:hover{background:#2ea043}
 .character-card.selected{border-color:#3fb950;box-shadow:0 0 0 1px #3fb950;background:#14251b}
 .character-card img,.character-placeholder{display:block;width:100%;height:150px;object-fit:cover;object-position:center;border-radius:7px;background:#21262d;margin-bottom:10px}
 .character-placeholder{display:grid;place-items:center;font-size:48px;color:#8b949e}
-.character-card strong{display:block;font-size:13px}
-.character-card small{display:block;color:#8b949e;font-size:10px;margin-top:5px}
-.screen-actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-top:20px}
-.screen-actions .spacer{flex:1}
+.character-card strong{display:block;font-size:13px}.character-card small{display:block;color:#8b949e;font-size:10px;margin-top:5px}
+.screen-actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-top:20px}.screen-actions .spacer{flex:1}
 #makerScreen{display:none}
 .maker-layout{display:grid;grid-template-columns:minmax(0,1fr) 230px;gap:18px;align-items:start}
 #makerCanvas{display:block;width:100%;max-width:540px;aspect-ratio:1;background:#fff;border:1px solid #30363d;border-radius:9px;touch-action:none;cursor:crosshair}
-.maker-tools{display:flex;flex-direction:column;gap:10px}
-.tool-group{padding:12px;background:#0d1117;border:1px solid #30363d;border-radius:9px}
-.tool-group label{display:block;color:#8b949e;font-size:11px;margin-bottom:8px}
-.tool-group input[type=color]{width:100%;height:34px;background:transparent;border:0}
-.tool-group input[type=range]{width:100%}
-.tool-group input[type=file]{width:100%;font-size:11px;color:#8b949e}
-.tool-buttons{display:grid;grid-template-columns:1fr 1fr;gap:7px}
-.tool-buttons button{padding:8px 5px;font-size:11px}
+.maker-tools{display:flex;flex-direction:column;gap:10px}.tool-group{padding:12px;background:#0d1117;border:1px solid #30363d;border-radius:9px}
+.tool-group label{display:block;color:#8b949e;font-size:11px;margin-bottom:8px}.tool-group input[type=color]{width:100%;height:34px;background:transparent;border:0}.tool-group input[type=range]{width:100%}
+.tool-group input[type=file]{width:100%;font-size:11px;color:#8b949e}.tool-buttons{display:grid;grid-template-columns:1fr 1fr;gap:7px}.tool-buttons button{padding:8px 5px;font-size:11px}
+@media(max-width:650px){.screen-panel{padding:16px}.character-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.character-card img,.character-placeholder{height:125px}.maker-layout{grid-template-columns:1fr}.maker-tools{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}}
 
-@media(max-width:600px){
-.hud{grid-template-columns:repeat(2,1fr)}
-.broom-list{grid-template-columns:repeat(2,1fr)}
-.stat strong{font-size:16px}
-.game-container{padding:8px}
-}
-@media(max-width:650px){
-.screen-panel{padding:16px}
-.character-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-.character-card img,.character-placeholder{height:125px}
-.maker-layout{grid-template-columns:1fr}
-.maker-tools{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
-}
 </style>
 </head>
-
 <body>
 
 <div class="screen-overlay" id="characterScreen">
-<div class="screen-panel">
-<div class="screen-kicker">Brooming the Room Simulator</div>
-<h2>Choose your cleaner.</h2>
-<p class="screen-description">Select a character to take into the room, or create your own in the Character Maker.</p>
-<div class="character-grid" id="characterGrid"></div>
-<div class="screen-actions">
-<button class="secondary" type="button" onclick="openCharacterMaker()">Create a character</button>
-<span class="spacer"></span>
-<button type="button" onclick="startWithSelectedCharacter()">Enter the room</button>
+  <div class="screen-panel">
+    <div class="screen-kicker">Brooming the Room Simulator</div>
+    <h2>Choose your cleaner.</h2>
+    <p class="screen-description">Select a character to take into the room, or create your own in the Character Maker.</p>
+    <div class="character-grid" id="characterGrid"></div>
+    <div class="screen-actions">
+      <button class="secondary" type="button" onclick="openCharacterMaker()">Create a character</button>
+      <span class="spacer"></span>
+      <button type="button" onclick="startWithSelectedCharacter()">Enter the room</button>
+    </div>
+  </div>
 </div>
-</div>
+<div class="screen-overlay" id="makerScreen">
+  <div class="screen-panel">
+    <div class="screen-kicker">Character workshop</div>
+    <h2>Character Maker</h2>
+    <p class="screen-description">Upload a portrait or draw your own. Use the brush, eraser, undo, and background controls. Your character is saved in this browser.</p>
+    <div class="maker-layout">
+      <canvas id="makerCanvas" width="512" height="512"></canvas>
+      <div class="maker-tools">
+        <div class="tool-group">
+          <label for="brushColor">Brush color</label><input id="brushColor" type="color" value="#20252d">
+          <label for="brushSize" style="margin-top:10px">Brush size: <span id="brushSizeValue">16</span> px</label><input id="brushSize" type="range" min="1" max="80" value="16">
+        </div>
+        <div class="tool-group"><label>Drawing tools</label><div class="tool-buttons">
+          <button id="brushTool" type="button">Brush</button><button id="eraserTool" class="secondary" type="button">Eraser</button>
+          <button id="undoTool" class="secondary" type="button">Undo</button><button id="clearTool" class="secondary" type="button">Clear</button>
+        </div></div>
+        <div class="tool-group"><label for="characterUpload">Upload PNG, JPG, or WebP</label><input id="characterUpload" type="file" accept="image/png,image/jpeg,image/webp"></div>
+        <div class="tool-group"><label>Canvas background</label><div class="tool-buttons">
+          <button id="whiteBackground" class="secondary" type="button">White</button><button id="transparentBackground" class="secondary" type="button">Transparent</button>
+        </div></div>
+      </div>
+    </div>
+    <div class="screen-actions"><button class="secondary" type="button" onclick="closeCharacterMaker()">Back to characters</button><span class="spacer"></span><button type="button" onclick="saveCustomCharacter()">Save character</button></div>
+    <p class="screen-description" id="makerMessage" style="margin:12px 0 0">Draw something wonderful. It stays on this device.</p>
+  </div>
 </div>
 
-<div class="screen-overlay" id="makerScreen">
-<div class="screen-panel">
-<div class="screen-kicker">Character workshop</div>
-<h2>Character Maker</h2>
-<p class="screen-description">Upload a portrait or draw your own. Use the brush, eraser, undo, and background controls. Your character is saved in this browser.</p>
-<div class="maker-layout">
-<canvas id="makerCanvas" width="512" height="512"></canvas>
-<div class="maker-tools">
-<div class="tool-group">
-<label for="brushColor">Brush color</label>
-<input id="brushColor" type="color" value="#20252d">
-<label for="brushSize" style="margin-top:10px">Brush size: <span id="brushSizeValue">16</span> px</label>
-<input id="brushSize" type="range" min="1" max="80" value="16">
-</div>
-<div class="tool-group">
-<label>Drawing tools</label>
-<div class="tool-buttons">
-<button id="brushTool" type="button">Brush</button>
-<button id="eraserTool" class="secondary" type="button">Eraser</button>
-<button id="undoTool" class="secondary" type="button">Undo</button>
-<button id="clearTool" class="secondary" type="button">Clear</button>
-</div>
-</div>
-<div class="tool-group">
-<label for="characterUpload">Upload PNG, JPG, or WebP</label>
-<input id="characterUpload" type="file" accept="image/png,image/jpeg,image/webp">
-</div>
-<div class="tool-group">
-<label>Canvas background</label>
-<div class="tool-buttons">
-<button id="whiteBackground" class="secondary" type="button">White</button>
-<button id="transparentBackground" class="secondary" type="button">Transparent</button>
-</div>
-</div>
-</div>
-</div>
-<div class="screen-actions">
-<button class="secondary" type="button" onclick="closeCharacterMaker()">Back to characters</button>
-<span class="spacer"></span>
-<button type="button" onclick="saveCustomCharacter()">Save character</button>
-</div>
-<p class="screen-description" id="makerMessage" style="margin:12px 0 0">Draw something wonderful. It stays on this device.</p>
-</div>
-</div>
 
 <header>
-<h1>Brooming the Room Simulator</h1>
-<p class="subtitle">MONDUY's cleaning operation. Now with competitive speedrunning.</p>
+    <h1>Brooming the Room Simulator</h1>
+    <p class="subtitle">MONDUY's cleaning operation. Now with competitive speedrunning.</p>
 </header>
 
 <div class="game-container">
 
-<div class="hud">
-<div class="stat"><small>ROOM CLEANED</small><strong id="percent">0%</strong></div>
-<div class="stat"><small>DIRT REMAINING</small><strong id="remaining">0</strong></div>
-<div class="stat"><small>TIME ELAPSED</small><strong id="timer">00:00.000</strong></div>
-<div class="stat"><small>ROOM NUMBER</small><strong id="roomNumber">1</strong></div>
-</div>
+    <div class="hud">
+        <div class="stat">
+            <small>ROOM CLEANED</small>
+            <strong id="percent">0%</strong>
+        </div>
+        <div class="stat">
+            <small>DIRT REMAINING</small>
+            <strong id="remaining">0</strong>
+        </div>
+        <div class="stat">
+            <small>TIME ELAPSED</small>
+            <strong id="timer">00:00.000</strong>
+        </div>
+        <div class="stat">
+            <small>ROOM NUMBER</small>
+            <strong id="roomNumber">1</strong>
+        </div>
+    </div>
 
-<div class="progress-container"><div id="progress"></div></div>
+    <div class="progress-container">
+        <div id="progress"></div>
+    </div>
 
-<div class="canvas-wrap">
-<canvas id="game" width="900" height="560"></canvas>
-</div>
+    <div class="canvas-wrap">
+        <canvas id="game" width="900" height="560"></canvas>
+    </div>
 
-<div id="message">MONDUY is ready. Clean the room!</div>
+    <div id="message">MONDUY is ready. Clean the room!</div>
 
-<div class="section">
-<div class="section-title">BROOM INVENTORY | KEYS 1-0</div>
-<div class="broom-list" id="broomList"></div>
-</div>
+    <div class="section">
+        <div class="section-title">BROOM INVENTORY | KEYS 1-0</div>
+        <div class="broom-list" id="broomList"></div>
+    </div>
 
-<div class="controls">
-<div class="instructions">
-WASD / ARROWS: Move<br>
-MOUSE: Move toward cursor<br>
-CLICK / DRAG: Set movement destination<br>
-1-9 / 0: Change broom
-</div>
-<button onclick="newRoom()">Generate New Room</button>
-</div>
+    <div class="controls">
+        <div class="instructions">
+            WASD / ARROWS: Move<br>
+            MOUSE: Move toward cursor<br>
+            CLICK / DRAG: Set movement destination<br>
+            1-9 / 0: Change broom
+        </div>
 
-<div class="section">
-<div class="leaderboard-header">
-<div>
-<div class="section-title" style="margin:0">SPEEDRUN LEADERBOARD</div>
-<small>FASTEST ROOM COMPLETIONS</small>
-</div>
-<div class="leaderboard-controls">
-<button class="secondary" onclick="clearLeaderboard()">Reset</button>
-</div>
-</div>
+        <button onclick="newRoom()">Generate New Room</button>
+    </div>
 
-<div class="leaderboard" id="leaderboard">
-<div class="empty">No speedruns recorded yet.</div>
-</div>
+    <div class="section">
+        <div class="leaderboard-header">
+            <div>
+                <div class="section-title" style="margin:0">SPEEDRUN LEADERBOARD</div>
+                <small>FASTEST ROOM COMPLETIONS</small>
+            </div>
+            <div class="leaderboard-controls">
+                <button class="secondary" onclick="clearLeaderboard()">Reset</button>
+            </div>
+        </div>
 
-<div style="display:flex;gap:8px;margin-top:12px;align-items:center;flex-wrap:wrap">
-<input id="playerName" class="name-input" maxlength="18" placeholder="Your speedrunner name" value="MONDUY">
-<small style="color:#8b949e;font-size:11px">Your name is saved with your next completion.</small>
-</div>
-</div>
+        <div class="leaderboard" id="leaderboard">
+            <div class="empty">Connecting to global leaderboard...</div>
+        </div>
+        <small id="leaderboardStatus" style="display:block;color:#8b949e;font-size:11px;margin-top:8px">Connecting to Firebase...</small>
 
-<!-- UPDATE LOG -->
-<div class="update-log">
-<div class="update-log-header">
-<h2>UPDATE LOG</h2>
-<span>GAME DEVELOPMENT HISTORY</span>
-</div>
-
-<div class="update-entry">
-<div class="update-entry-top">
-<h3>Character Maker & Selection</h3>
-<span class="update-version">CHARACTERS</span>
-</div>
-<div class="update-date">Character system update</div>
-<ul>
-<li>Added a character selection screen.</li>
-<li>Added the Character Maker.</li>
-<li>Draw custom characters with a brush and eraser.</li>
-<li>Upload PNG, JPG, and WebP portraits.</li>
-<li>Save custom characters locally.</li>
-<li>Mrs. Monduy and the other preset characters are available.</li>
-</ul>
-</div>
-
-<div class="update-entry">
-<div class="update-entry-top">
-<h3>Speedrunning & Leaderboard</h3>
-<span class="update-version">GAMEPLAY</span>
-</div>
-<div class="update-date">Speedrun update</div>
-<ul>
-<li>Added a completion timer.</li>
-<li>Added a local top-ten leaderboard.</li>
-<li>Player names appear alongside completion times.</li>
-<li>Added a room completion celebration.</li>
-<li>Timer begins when the player actually moves.</li>
-</ul>
-</div>
-
-<div class="update-entry">
-<div class="update-entry-top">
-<h3>Broom Inventory</h3>
-<span class="update-version">EQUIPMENT</span>
-</div>
-<div class="update-date">Equipment update</div>
-<ul>
-<li>Added ten selectable brooms.</li>
-<li>Each broom has different speed and sweeping range.</li>
-<li>Keyboard shortcuts 1-9 and 0 select equipment.</li>
-<li>Added the legendary THE MONDUY broom.</li>
-</ul>
-</div>
-
-<div class="update-entry">
-<div class="update-entry-top">
-<h3>Room Generation</h3>
-<span class="update-version">ORIGINAL GAMEPLAY</span>
-</div>
-<div class="update-date">Core gameplay</div>
-<ul>
-<li>Procedurally generated rooms.</li>
-<li>Randomized furniture and dirt placement.</li>
-<li>Furniture collision detection.</li>
-<li>Keyboard and pointer movement.</li>
-<li>Progress tracking and room completion.</li>
-</ul>
-</div>
-</div>
+        <div style="display:flex;gap:8px;margin-top:12px;align-items:center;flex-wrap:wrap">
+            <input id="playerName" class="name-input" maxlength="18"
+                   placeholder="Your speedrunner name" value="MONDUY">
+            <small style="color:#8b949e;font-size:11px">
+                Your name is saved with your next completion.
+            </small>
+        </div>
+    </div>
 
 </div>
 
 <script>
-const canvas=document.getElementById("game");
-const ctx=canvas.getContext("2d");
-const W=900,H=560;
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
 
-let characterImage=new Image();
+const W = 900;
+const H = 560;
 
-const CHARACTER_ASSETS=[
-{name:"Mrs Monduy",file:"MONDUY.jpg"},
-{name:"Coach Buchannan",file:"Buch.jpg"},
-{name:"Mr Mast",file:"Mast.jpg"},
-{name:"Dr Calderwood",file:"Calder.jpg"},
-{name:"Mrs Ledwith",file:"Ledwith.png"},
-{name:"Alysia",file:"A.png"}
+let characterImage = new Image();
+const CHARACTER_ASSETS = [
+    { name: "Mrs Monduy", file: "MONDUY.jpg" },
+    { name: "Coach Buchannan", file: "Buch.jpg" },
+    { name: "Mr Mast", file: "Mast.jpg" },
+    { name: "Dr Calderwood", file: "Calder.jpg" },
+    { name: "Mrs Ledwith", file: "Ledwith.png" },
+    { name: "Alysia", file: "A.png" }
 ];
+const RAW_ASSET_BASE = "https://raw.githubusercontent.com/PinguinoCoffee/Broom-The-Room/main/";
+const CUSTOM_CHARACTER_KEY = "broom_room_custom_character_v1";
+const SELECTED_CHARACTER_KEY = "broom_room_selected_character_v1";
+let selectedCharacter = "Coach Buchannan";
+let customCharacterData = null;
 
-const RAW_ASSET_BASE="https://raw.githubusercontent.com/PinguinoCoffee/Broom-The-Room/main/";
-const CUSTOM_CHARACTER_KEY="broom_room_custom_character_v1";
-const SELECTED_CHARACTER_KEY="broom_room_selected_character_v1";
-
-let selectedCharacter="Coach Buchannan";
-let customCharacterData=null;
-
-function setCharacterImage(src){
-const image=new Image();
-image.onload=()=>{characterImage=image;render()};
-image.onerror=()=>console.error("Could not load character image:",src);
-image.src=src;
-characterImage=image;
+function setCharacterImage(src) {
+    const image = new Image();
+    image.onload = () => { characterImage = image; render(); };
+    image.onerror = () => { console.error("Could not load character image:", src); };
+    image.src = src;
+    characterImage = image;
 }
 
-const keys={};
+const keys = {};
 
-const player={x:70,y:70,radius:18,angle:0,speed:3.1};
-
-const brooms=[
-{name:"Basic Broom",emoji:"🧹",speed:3.1,range:17,width:1},
-{name:"Straw Broom",emoji:"🌾",speed:3.3,range:23,width:1},
-{name:"Wide Broom",emoji:"🧹",speed:2.8,range:31,width:1.2},
-{name:"Dust Sweeper",emoji:"🪶",speed:3.8,range:13,width:1},
-{name:"Industrial",emoji:"⚙️",speed:2.7,range:27,width:1.8},
-{name:"Golden Broom",emoji:"✨",speed:3.6,range:25,width:1.3},
-{name:"Mega Broom",emoji:"🧹",speed:2.5,range:43,width:1.8},
-{name:"Speed Broom",emoji:"💨",speed:5,range:15,width:1},
-{name:"Professional",emoji:"🏆",speed:4,range:35,width:1.5},
-{name:"THE MONDUY",emoji:"👑",speed:5.5,range:55,width:2}
-];
-
-const bookPalette=["#a74b4b","#557d9d","#d3b66a","#54815e","#9471a5","#bd7951"];
-
-let selectedBroom=0;
-let obstacles=[];
-let dirt=[];
-let particles=[];
-let confetti=[];
-let cleaned=0;
-let totalDirt=0;
-let roomNumber=0;
-let won=false;
-let startedAt=0;
-let finishTime=0;
-let pointerTarget=null;
-let pointerDown=false;
-
-const random=(min,max)=>Math.random()*(max-min)+min;
-
-function formatTime(ms){
-const minutes=Math.floor(ms/60000);
-const seconds=Math.floor(ms/1000)%60;
-const milliseconds=Math.floor(ms%1000);
-return String(minutes).padStart(2,"0")+":"+String(seconds).padStart(2,"0")+"."+String(milliseconds).padStart(3,"0");
-}
-
-function circleRect(x,y,r,o){
-const cx=Math.max(o.x,Math.min(x,o.x+o.w));
-const cy=Math.max(o.y,Math.min(y,o.y+o.h));
-return Math.hypot(x-cx,y-cy)<r;
-}
-
-function collides(x,y,radius){
-return obstacles.some(o=>circleRect(x,y,radius,o));
-}
-
-function generateRoom(){
-obstacles=[];
-const types=["sofa","bed","table","cabinet","plant","bookshelf","chair"];
-const amount=Math.floor(random(5,10));
-
-for(let i=0;i<amount;i++){
-for(let attempt=0;attempt<100;attempt++){
-const w=random(65,150);
-const h=random(60,120);
-const x=random(35,W-w-35);
-const y=random(35,H-h-35);
-const candidate={x,y,w,h};
-
-if(Math.hypot(x+w/2-70,y+h/2-70)<145)continue;
-
-if(obstacles.some(o=>
-x<o.x+o.w+18&&x+w+18>o.x&&
-y<o.y+o.h+18&&y+h+18>o.y
-))continue;
-
-const type=types[Math.floor(Math.random()*types.length)];
-const furniture={...candidate,type,bookColors:[],bookRows:[]};
-
-if(type==="bookshelf"){
-const rows=Math.floor((h-20)/25);
-for(let r=0;r<rows;r++){
-const colors=[];
-for(let c=0;c<Math.floor((w-20)/20);c++){
-colors.push(bookPalette[Math.floor(Math.random()*bookPalette.length)]);
-}
-furniture.bookRows.push(colors);
-}
-}
-obstacles.push(furniture);
-break;
-}
-}
-}
-
-function generateDirt(){
-dirt=[];
-const amount=Math.floor(random(170,260));
-
-for(let i=0;i<amount;i++){
-for(let attempt=0;attempt<40;attempt++){
-const x=random(30,W-30);
-const y=random(30,H-30);
-
-if(!collides(x,y,8)&&Math.hypot(x-70,y-70)>40){
-dirt.push({x,y,size:random(1.5,4),type:Math.random(),rotation:random(0,Math.PI*2)});
-break;
-}
-}
-}
-totalDirt=dirt.length;
-}
-
-function buildBrooms(){
-const list=document.getElementById("broomList");
-list.innerHTML="";
-
-brooms.forEach((b,i)=>{
-const el=document.createElement("div");
-el.className="broom";
-el.innerHTML=`<span class="emoji">${b.emoji}</span><b>${i===9?"0":i+1} - ${b.name}</b><small>Speed ${b.speed} | Range ${b.range}</small>`;
-el.addEventListener("click",()=>selectBroom(i));
-list.appendChild(el);
-});
-selectBroom(0);
-}
-
-function selectBroom(i){
-selectedBroom=i;
-player.speed=brooms[i].speed;
-document.querySelectorAll(".broom").forEach((el,index)=>el.classList.toggle("active",index===i));
-document.getElementById("message").textContent="Equipped: "+brooms[i].name;
-render();
-}
-
-function drawFloor(){
-ctx.fillStyle="#c6b99f";
-ctx.fillRect(0,0,W,H);
-ctx.strokeStyle="rgba(90,70,45,.16)";
-ctx.lineWidth=1;
-
-for(let y=0;y<H;y+=45){
-ctx.beginPath();
-ctx.moveTo(0,y);
-ctx.lineTo(W,y);
-ctx.stroke();
-}
-
-for(let y=0;y<H;y+=90){
-for(let x=0;x<W;x+=150){
-const offset=y%180===0?0:75;
-ctx.beginPath();
-ctx.moveTo(x+offset,y);
-ctx.lineTo(x+offset,y+45);
-ctx.stroke();
-}
-}
-
-ctx.fillStyle="#665644";
-ctx.fillRect(0,0,W,12);
-ctx.fillRect(0,H-12,W,12);
-ctx.fillRect(0,0,12,H);
-ctx.fillRect(W-12,0,12,H);
-}
-
-function drawDirt(){
-dirt.forEach(d=>{
-ctx.save();
-ctx.translate(d.x,d.y);
-ctx.rotate(d.rotation);
-ctx.fillStyle=d.type>.6?"#514535":"#76634c";
-ctx.beginPath();
-
-if(d.type>.8)ctx.ellipse(0,0,d.size*1.7,d.size,.5,0,Math.PI*2);
-else ctx.arc(0,0,d.size,0,Math.PI*2);
-
-ctx.fill();
-ctx.restore();
-});
-}
-
-function drawFurniture(){
-obstacles.forEach(o=>{
-ctx.save();
-ctx.fillStyle="rgba(0,0,0,.22)";
-ctx.fillRect(o.x+7,o.y+8,o.w,o.h);
-
-const colors={
-sofa:["#66516b","#a087a7"],
-bed:["#66869c","#d8d5c7"],
-table:["#765337","#ae8252"],
-cabinet:["#705238","#a57c53"],
-plant:["#34764b","#5a9c59"],
-bookshelf:["#795d40","#c29a65"],
-chair:["#956047","#bd8560"]
+const player = {
+    x: 70,
+    y: 70,
+    radius: 18,
+    angle: 0,
+    speed: 3.1
 };
 
-const [base,accent]=colors[o.type];
-ctx.fillStyle=base;
-ctx.fillRect(o.x,o.y,o.w,o.h);
-ctx.fillStyle=accent;
+const brooms = [
+    {name:"Basic Broom", emoji:"🧹", speed:3.1, range:17, width:1},
+    {name:"Straw Broom", emoji:"🌾", speed:3.3, range:23, width:1},
+    {name:"Wide Broom", emoji:"🧹", speed:2.8, range:31, width:1.2},
+    {name:"Dust Sweeper", emoji:"🪶", speed:3.8, range:13, width:1},
+    {name:"Industrial", emoji:"⚙️", speed:2.7, range:27, width:1.8},
+    {name:"Golden Broom", emoji:"✨", speed:3.6, range:25, width:1.3},
+    {name:"Mega Broom", emoji:"🧹", speed:2.5, range:43, width:1.8},
+    {name:"Speed Broom", emoji:"💨", speed:5, range:15, width:1},
+    {name:"Professional", emoji:"🏆", speed:4, range:35, width:1.5},
+    {name:"THE MONDUY", emoji:"👑", speed:5.5, range:55, width:2}
+];
 
-if(o.type==="plant"){
-ctx.fillRect(o.x+15,o.y+o.h-20,o.w-30,15);
-ctx.fillStyle="#34764b";
-ctx.beginPath();
-ctx.arc(o.x+o.w/2,o.y+o.h/2,Math.min(o.w,o.h)*.35,0,Math.PI*2);
-ctx.fill();
-ctx.fillStyle="#71a95d";
-ctx.beginPath();
-ctx.arc(o.x+o.w/2-10,o.y+o.h/2-10,13,0,Math.PI*2);
-ctx.fill();
+const bookPalette = [
+    "#a74b4b", "#557d9d", "#d3b66a",
+    "#54815e", "#9471a5", "#bd7951"
+];
+
+let selectedBroom = 0;
+let obstacles = [];
+let dirt = [];
+let particles = [];
+let confetti = [];
+
+let cleaned = 0;
+let totalDirt = 0;
+let roomNumber = 0;
+let won = false;
+
+let startedAt = 0;
+let finishTime = 0;
+let animationRunning = false;
+
+let pointerTarget = null;
+let pointerDown = false;
+
+const random = (min, max) =>
+    Math.random() * (max - min) + min;
+
+function formatTime(ms) {
+    const minutes = Math.floor(ms / 60000);
+    const seconds = Math.floor(ms / 1000) % 60;
+    const milliseconds = Math.floor(ms % 1000);
+
+    return String(minutes).padStart(2, "0") + ":" +
+           String(seconds).padStart(2, "0") + "." +
+           String(milliseconds).padStart(3, "0");
 }
-else if(o.type==="bed"){
-ctx.fillRect(o.x+8,o.y+8,o.w-16,38);
-ctx.fillStyle="#eee7d9";
-ctx.fillRect(o.x+12,o.y+12,(o.w-30)/2,28);
-ctx.fillRect(o.x+o.w/2+3,o.y+12,(o.w-30)/2,28);
-ctx.fillStyle=accent;
-ctx.fillRect(o.x+8,o.y+52,o.w-16,o.h-60);
+
+function circleRect(x, y, r, o) {
+    const cx = Math.max(o.x, Math.min(x, o.x + o.w));
+    const cy = Math.max(o.y, Math.min(y, o.y + o.h));
+
+    return Math.hypot(x - cx, y - cy) < r;
 }
-else if(o.type==="sofa"){
-ctx.fillRect(o.x+8,o.y+8,o.w-16,o.h-16);
-ctx.fillStyle=accent;
-ctx.fillRect(o.x+14,o.y+14,(o.w-35)/2,o.h-28);
-ctx.fillRect(o.x+o.w/2+3,o.y+14,(o.w-35)/2,o.h-28);
+
+function collides(x, y, radius) {
+    return obstacles.some(o => circleRect(x, y, radius, o));
 }
-else if(o.type==="bookshelf"){
-o.bookRows.forEach((row,r)=>{
-const y=o.y+12+r*25;
-ctx.fillStyle=accent;
-ctx.fillRect(o.x+8,y+1,o.w-16,3);
-row.forEach((color,c)=>{
-ctx.fillStyle=color;
-ctx.fillRect(o.x+14+c*20,y-17,11,17);
+
+// RANDOM ROOM GENERATION
+
+function generateRoom() {
+    obstacles = [];
+
+    const types = [
+        "sofa", "bed", "table", "cabinet",
+        "plant", "bookshelf", "chair"
+    ];
+
+    const amount = Math.floor(random(5, 10));
+
+    for (let i = 0; i < amount; i++) {
+        for (let attempt = 0; attempt < 100; attempt++) {
+            const w = random(65, 150);
+            const h = random(60, 120);
+            const x = random(35, W - w - 35);
+            const y = random(35, H - h - 35);
+
+            const candidate = {x, y, w, h};
+
+            if (Math.hypot(x + w / 2 - 70, y + h / 2 - 70) < 145) {
+                continue;
+            }
+
+            if (obstacles.some(o =>
+                x < o.x + o.w + 18 &&
+                x + w + 18 > o.x &&
+                y < o.y + o.h + 18 &&
+                y + h + 18 > o.y
+            )) continue;
+
+            const type = types[Math.floor(Math.random() * types.length)];
+
+            const furniture = {
+                ...candidate,
+                type,
+                bookColors: [],
+                bookRows: []
+            };
+
+            // Generate bookshelf appearance ONCE.
+            // This prevents the books from flashing every frame.
+            if (type === "bookshelf") {
+                const rows = Math.floor((h - 20) / 25);
+
+                for (let r = 0; r < rows; r++) {
+                    const colors = [];
+
+                    for (let c = 0; c < Math.floor((w - 20) / 20); c++) {
+                        colors.push(
+                            bookPalette[Math.floor(Math.random() * bookPalette.length)]
+                        );
+                    }
+
+                    furniture.bookRows.push(colors);
+                }
+            }
+
+            obstacles.push(furniture);
+            break;
+        }
+    }
+}
+
+function generateDirt() {
+    dirt = [];
+
+    const amount = Math.floor(random(170, 260));
+
+    for (let i = 0; i < amount; i++) {
+        for (let attempt = 0; attempt < 40; attempt++) {
+            const x = random(30, W - 30);
+            const y = random(30, H - 30);
+
+            if (!collides(x, y, 8) &&
+                Math.hypot(x - 70, y - 70) > 40) {
+
+                dirt.push({
+                    x,
+                    y,
+                    size: random(1.5, 4),
+                    type: Math.random(),
+                    rotation: random(0, Math.PI * 2)
+                });
+
+                break;
+            }
+        }
+    }
+
+    totalDirt = dirt.length;
+}
+
+// BROOMS
+
+function buildBrooms() {
+    const list = document.getElementById("broomList");
+    list.innerHTML = "";
+
+    brooms.forEach((b, i) => {
+        const el = document.createElement("div");
+
+        el.className = "broom";
+        el.innerHTML = `
+            <span class="emoji">${b.emoji}</span>
+            <b>${i === 9 ? "0" : i + 1} - ${b.name}</b>
+            <small>Speed ${b.speed} | Range ${b.range}</small>
+        `;
+
+        el.addEventListener("click", () => selectBroom(i));
+        list.appendChild(el);
+    });
+
+    selectBroom(0);
+}
+
+function selectBroom(i) {
+    selectedBroom = i;
+    player.speed = brooms[i].speed;
+
+    document.querySelectorAll(".broom").forEach((el, index) => {
+        el.classList.toggle("active", index === i);
+    });
+
+    document.getElementById("message").textContent =
+        "Equipped: " + brooms[i].name;
+
+    render();
+}
+
+// FLOOR
+
+function drawFloor() {
+    ctx.fillStyle = "#c6b99f";
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.strokeStyle = "rgba(90,70,45,.16)";
+    ctx.lineWidth = 1;
+
+    for (let y = 0; y < H; y += 45) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(W, y);
+        ctx.stroke();
+    }
+
+    for (let y = 0; y < H; y += 90) {
+        for (let x = 0; x < W; x += 150) {
+            const offset = y % 180 === 0 ? 0 : 75;
+
+            ctx.beginPath();
+            ctx.moveTo(x + offset, y);
+            ctx.lineTo(x + offset, y + 45);
+            ctx.stroke();
+        }
+    }
+
+    ctx.fillStyle = "#665644";
+    ctx.fillRect(0, 0, W, 12);
+    ctx.fillRect(0, H - 12, W, 12);
+    ctx.fillRect(0, 0, 12, H);
+    ctx.fillRect(W - 12, 0, 12, H);
+}
+
+// DIRT
+
+function drawDirt() {
+    dirt.forEach(d => {
+        ctx.save();
+        ctx.translate(d.x, d.y);
+        ctx.rotate(d.rotation);
+
+        ctx.fillStyle = d.type > .6 ? "#514535" : "#76634c";
+
+        ctx.beginPath();
+
+        if (d.type > .8) {
+            ctx.ellipse(0, 0, d.size * 1.7, d.size, .5, 0, Math.PI * 2);
+        } else {
+            ctx.arc(0, 0, d.size, 0, Math.PI * 2);
+        }
+
+        ctx.fill();
+        ctx.restore();
+    });
+}
+
+// FURNITURE
+
+function drawFurniture() {
+    obstacles.forEach(o => {
+        ctx.save();
+
+        ctx.fillStyle = "rgba(0,0,0,.22)";
+        ctx.fillRect(o.x + 7, o.y + 8, o.w, o.h);
+
+        const colors = {
+            sofa: ["#66516b", "#a087a7"],
+            bed: ["#66869c", "#d8d5c7"],
+            table: ["#765337", "#ae8252"],
+            cabinet: ["#705238", "#a57c53"],
+            plant: ["#34764b", "#5a9c59"],
+            bookshelf: ["#795d40", "#c29a65"],
+            chair: ["#956047", "#bd8560"]
+        };
+
+        const [base, accent] = colors[o.type];
+
+        ctx.fillStyle = base;
+        ctx.fillRect(o.x, o.y, o.w, o.h);
+
+        ctx.fillStyle = accent;
+
+        if (o.type === "plant") {
+            ctx.fillRect(o.x + 15, o.y + o.h - 20, o.w - 30, 15);
+
+            ctx.fillStyle = "#34764b";
+            ctx.beginPath();
+            ctx.arc(o.x + o.w / 2, o.y + o.h / 2, Math.min(o.w, o.h) * .35, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = "#71a95d";
+            ctx.beginPath();
+            ctx.arc(o.x + o.w / 2 - 10, o.y + o.h / 2 - 10, 13, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        else if (o.type === "bed") {
+            ctx.fillRect(o.x + 8, o.y + 8, o.w - 16, 38);
+
+            ctx.fillStyle = "#eee7d9";
+            ctx.fillRect(o.x + 12, o.y + 12, (o.w - 30) / 2, 28);
+            ctx.fillRect(o.x + o.w / 2 + 3, o.y + 12, (o.w - 30) / 2, 28);
+
+            ctx.fillStyle = accent;
+            ctx.fillRect(o.x + 8, o.y + 52, o.w - 16, o.h - 60);
+        }
+
+        else if (o.type === "sofa") {
+            ctx.fillRect(o.x + 8, o.y + 8, o.w - 16, o.h - 16);
+
+            ctx.fillStyle = accent;
+            ctx.fillRect(o.x + 14, o.y + 14, (o.w - 35) / 2, o.h - 28);
+            ctx.fillRect(o.x + o.w / 2 + 3, o.y + 14, (o.w - 35) / 2, o.h - 28);
+        }
+
+        else if (o.type === "bookshelf") {
+            o.bookRows.forEach((row, r) => {
+                const y = o.y + 12 + r * 25;
+
+                ctx.fillStyle = accent;
+                ctx.fillRect(o.x + 8, y + 1, o.w - 16, 3);
+
+                row.forEach((color, c) => {
+                    ctx.fillStyle = color;
+                    ctx.fillRect(o.x + 14 + c * 20, y - 17, 11, 17);
+                });
+            });
+        }
+
+        else {
+            ctx.fillRect(o.x + 9, o.y + 9, o.w - 18, o.h - 18);
+
+            ctx.strokeStyle = "#e2c59a";
+            ctx.lineWidth = 2;
+            ctx.strokeRect(o.x + 12, o.y + 12, o.w - 24, o.h - 24);
+        }
+
+        ctx.restore();
+    });
+}
+
+// MONDUY + BROOM
+
+function drawPlayer() {
+    const broom = brooms[selectedBroom];
+
+    ctx.save();
+    ctx.translate(player.x, player.y);
+    ctx.rotate(player.angle);
+
+    // Broom handle
+    ctx.strokeStyle = selectedBroom === 9 ? "#ff5555" : "#79502d";
+    ctx.lineWidth = selectedBroom >= 6 ? 7 : 5;
+    ctx.lineCap = "round";
+
+    ctx.beginPath();
+    ctx.moveTo(5, 0);
+    ctx.lineTo(42, 0);
+    ctx.stroke();
+
+    // Bristles
+    const size = 9 + broom.width * 5;
+
+    ctx.fillStyle = selectedBroom === 9 ? "#ff5555" :
+                    selectedBroom === 5 ? "#ffd700" : "#e1c17a";
+
+    ctx.beginPath();
+    ctx.moveTo(37, -size);
+    ctx.lineTo(53, -size * .8);
+    ctx.lineTo(53, size * .8);
+    ctx.lineTo(37, size);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.strokeStyle = "#79502d";
+    ctx.lineWidth = 1;
+
+    for (let i = -size; i <= size; i += 4) {
+        ctx.beginPath();
+        ctx.moveTo(40, i);
+        ctx.lineTo(52, i);
+        ctx.stroke();
+    }
+
+    // Character shadow
+    ctx.fillStyle = "rgba(0,0,0,.3)";
+    ctx.beginPath();
+    ctx.arc(2, 4, 20, 0, Math.PI * 2);
+    ctx.fill();
+
+    // MONDUY image
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(0, 0, player.radius, 0, Math.PI * 2);
+    ctx.clip();
+
+    if (characterImage.complete && characterImage.naturalWidth > 0) {
+        ctx.drawImage(
+            characterImage,
+            -player.radius,
+            -player.radius,
+            player.radius * 2,
+            player.radius * 2
+        );
+    } else {
+        ctx.fillStyle = "#2687ce";
+        ctx.fillRect(-player.radius, -player.radius, 36, 36);
+    }
+
+    ctx.restore();
+
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(0, 0, player.radius, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.restore();
+}
+
+// SWEEP PARTICLES
+
+function addParticles(x, y) {
+    for (let i = 0; i < 3; i++) {
+        particles.push({
+            x,
+            y,
+            vx: random(-1.5, 1.5),
+            vy: random(-1.5, 1.5),
+            life: 20,
+            size: random(1, 3)
+        });
+    }
+}
+
+function drawParticles() {
+    particles.forEach(p => {
+        ctx.globalAlpha = p.life / 20;
+        ctx.fillStyle = "#d9c69d";
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life--;
+    });
+
+    ctx.globalAlpha = 1;
+    particles = particles.filter(p => p.life > 0);
+}
+
+// CONFETTI CELEBRATION
+
+function launchConfetti() {
+    confetti = [];
+
+    const colors = [
+        "#ff5555", "#ffd700", "#3fb950",
+        "#58a6ff", "#bc8cff", "#ff8c42",
+        "#ffffff", "#ff69b4"
+    ];
+
+    for (let i = 0; i < 220; i++) {
+        confetti.push({
+            x: random(0, W),
+            y: random(-H, 0),
+            vx: random(-3, 3),
+            vy: random(2, 7),
+            rotation: random(0, 6),
+            spin: random(-.15, .15),
+            size: random(4, 9),
+            color: colors[Math.floor(Math.random() * colors.length)],
+            life: random(180, 350)
+        });
+    }
+}
+
+function drawConfetti() {
+    confetti.forEach(c => {
+        ctx.save();
+        ctx.translate(c.x, c.y);
+        ctx.rotate(c.rotation);
+
+        ctx.fillStyle = c.color;
+        ctx.fillRect(-c.size / 2, -c.size / 2, c.size, c.size * 1.7);
+
+        ctx.restore();
+
+        c.x += c.vx;
+        c.y += c.vy;
+        c.vy += .035;
+        c.rotation += c.spin;
+        c.life--;
+    });
+
+    confetti = confetti.filter(c =>
+        c.life > 0 && c.y < H + 30
+    );
+}
+
+// LEADERBOARD
+
+const STORAGE_KEY = "monduy_broom_speedruns_v1";
+
+function getLeaderboard() {
+    try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        return Array.isArray(saved) ? saved : [];
+    } catch {
+        return [];
+    }
+}
+
+function saveLeaderboard(entries) {
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+    } catch {
+        document.getElementById("message").textContent =
+            "Could not save leaderboard. Browser storage may be disabled.";
+    }
+}
+
+function recordScore(ms) {
+    const name = document.getElementById("playerName").value.trim()
+        .replace(/[<>]/g, "").slice(0, 18) || "MONDUY";
+
+    const entries = getLeaderboard();
+
+    entries.push({
+        name,
+        time: ms,
+        date: new Date().toISOString()
+    });
+
+    entries.sort((a, b) => a.time - b.time);
+
+    const best = entries.slice(0, 10);
+
+    saveLeaderboard(best);
+    renderLeaderboard();
+    if (window.submitGlobalScore) window.submitGlobalScore({ name, time: Math.round(ms) });
+}
+
+window.renderLeaderboard = renderLeaderboard;
+
+function renderLeaderboard(entriesOverride) {
+    const entries = Array.isArray(entriesOverride) ? entriesOverride : getLeaderboard();
+    const board = document.getElementById("leaderboard");
+
+    if (!entries.length) {
+        board.innerHTML =
+            '<div class="empty">No speedruns recorded yet. Be the first!</div>';
+        return;
+    }
+
+    board.innerHTML = "";
+
+    entries.slice(0, 10).forEach((entry, i) => {
+        const row = document.createElement("div");
+        row.className = "player-entry";
+
+        const left = document.createElement("span");
+        const rank = document.createElement("span");
+        rank.className = "rank";
+        rank.textContent = "#" + (i + 1);
+
+        const name = document.createElement("span");
+        name.textContent = entry.name;
+
+        left.append(rank, name);
+
+        const time = document.createElement("span");
+        time.className = "time";
+        time.textContent = formatTime(entry.time);
+
+        row.append(left, time);
+        board.appendChild(row);
+    });
+}
+
+function clearLeaderboard() {
+    if (!confirm("Delete all locally saved speedrun records?")) return;
+
+    try {
+        localStorage.removeItem(STORAGE_KEY);
+    } catch {}
+
+    renderLeaderboard();
+}
+
+// VICTORY
+
+function winGame() {
+    if (won) return;
+
+    won = true;
+
+    finishTime = Date.now() - startedAt;
+
+    document.getElementById("timer").textContent =
+        formatTime(finishTime);
+
+    document.getElementById("message").textContent =
+        "ROOM COMPLETED! " + selectedCharacter.toUpperCase() + " HAS DEFEATED THE DIRT. TIME: " +
+        formatTime(finishTime);
+
+    document.getElementById("message").style.color = "#3fb950";
+
+    recordScore(finishTime);
+    launchConfetti();
+}
+
+// HUD
+
+function updateHUD() {
+    const percentage = totalDirt
+        ? Math.round(cleaned / totalDirt * 100)
+        : 100;
+
+    document.getElementById("percent").textContent = percentage + "%";
+    document.getElementById("remaining").textContent = dirt.length;
+    document.getElementById("progress").style.width = percentage + "%";
+}
+
+// TIMER
+
+function updateTimer() {
+    if (won || !startedAt) return;
+
+    document.getElementById("timer").textContent =
+        formatTime(Date.now() - startedAt);
+}
+
+// CURSOR CONTROLS
+
+function canvasPosition(e) {
+    const rect = canvas.getBoundingClientRect();
+
+    return {
+        x: (e.clientX - rect.left) * W / rect.width,
+        y: (e.clientY - rect.top) * H / rect.height
+    };
+}
+
+canvas.addEventListener("pointermove", e => {
+    if (e.pointerType === "mouse" && e.buttons === 0) {
+        pointerTarget = canvasPosition(e);
+    } else if (pointerDown) {
+        pointerTarget = canvasPosition(e);
+    }
 });
-});
-}
-else{
-ctx.fillRect(o.x+9,o.y+9,o.w-18,o.h-18);
-ctx.strokeStyle="#e2c59a";
-ctx.lineWidth=2;
-ctx.strokeRect(o.x+12,o.y+12,o.w-24,o.h-24);
-}
-ctx.restore();
-});
-}
 
-function drawPlayer(){
-const broom=brooms[selectedBroom];
-ctx.save();
-ctx.translate(player.x,player.y);
-ctx.rotate(player.angle);
-
-ctx.strokeStyle=selectedBroom===9?"#ff5555":"#79502d";
-ctx.lineWidth=selectedBroom>=6?7:5;
-ctx.lineCap="round";
-ctx.beginPath();
-ctx.moveTo(5,0);
-ctx.lineTo(42,0);
-ctx.stroke();
-
-const size=9+broom.width*5;
-ctx.fillStyle=selectedBroom===9?"#ff5555":selectedBroom===5?"#ffd700":"#e1c17a";
-ctx.beginPath();
-ctx.moveTo(37,-size);
-ctx.lineTo(53,-size*.8);
-ctx.lineTo(53,size*.8);
-ctx.lineTo(37,size);
-ctx.closePath();
-ctx.fill();
-
-ctx.strokeStyle="#79502d";
-ctx.lineWidth=1;
-for(let i=-size;i<=size;i+=4){
-ctx.beginPath();
-ctx.moveTo(40,i);
-ctx.lineTo(52,i);
-ctx.stroke();
-}
-
-ctx.fillStyle="rgba(0,0,0,.3)";
-ctx.beginPath();
-ctx.arc(2,4,20,0,Math.PI*2);
-ctx.fill();
-
-ctx.save();
-ctx.beginPath();
-ctx.arc(0,0,player.radius,0,Math.PI*2);
-ctx.clip();
-
-if(characterImage.complete&&characterImage.naturalWidth>0){
-ctx.drawImage(characterImage,-player.radius,-player.radius,player.radius*2,player.radius*2);
-}else{
-ctx.fillStyle="#2687ce";
-ctx.fillRect(-player.radius,-player.radius,36,36);
-}
-
-ctx.restore();
-ctx.strokeStyle="#ffffff";
-ctx.lineWidth=2;
-ctx.beginPath();
-ctx.arc(0,0,player.radius,0,Math.PI*2);
-ctx.stroke();
-ctx.restore();
-}
-
-function addParticles(x,y){
-for(let i=0;i<3;i++){
-particles.push({x,y,vx:random(-1.5,1.5),vy:random(-1.5,1.5),life:20,size:random(1,3)});
-}
-}
-
-function drawParticles(){
-particles.forEach(p=>{
-ctx.globalAlpha=p.life/20;
-ctx.fillStyle="#d9c69d";
-ctx.beginPath();
-ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
-ctx.fill();
-p.x+=p.vx;
-p.y+=p.vy;
-p.life--;
-});
-ctx.globalAlpha=1;
-particles=particles.filter(p=>p.life>0);
-}
-
-function launchConfetti(){
-confetti=[];
-const colors=["#ff5555","#ffd700","#3fb950","#58a6ff","#bc8cff","#ff8c42","#ffffff","#ff69b4"];
-
-for(let i=0;i<220;i++){
-confetti.push({
-x:random(0,W),y:random(-H,0),vx:random(-3,3),vy:random(2,7),
-rotation:random(0,6),spin:random(-.15,.15),size:random(4,9),
-color:colors[Math.floor(Math.random()*colors.length)],life:random(180,350)
-});
-}
-}
-
-function drawConfetti(){
-confetti.forEach(c=>{
-ctx.save();
-ctx.translate(c.x,c.y);
-ctx.rotate(c.rotation);
-ctx.fillStyle=c.color;
-ctx.fillRect(-c.size/2,-c.size/2,c.size,c.size*1.7);
-ctx.restore();
-c.x+=c.vx;
-c.y+=c.vy;
-c.vy+=.035;
-c.rotation+=c.spin;
-c.life--;
-});
-confetti=confetti.filter(c=>c.life>0&&c.y<H+30);
-}
-
-// LOCAL LEADERBOARD
-const STORAGE_KEY="monduy_broom_speedruns_v1";
-const PLAYER_NAME_KEY="monduy_broom_player_name_v1";
-
-const playerNameInput=document.getElementById("playerName");
-
-try{
-playerNameInput.value=localStorage.getItem(PLAYER_NAME_KEY)||"MONDUY";
-}catch(e){}
-
-playerNameInput.addEventListener("input",()=>{
-try{localStorage.setItem(PLAYER_NAME_KEY,playerNameInput.value.trim().slice(0,18));}catch(e){}
+canvas.addEventListener("pointerdown", e => {
+    pointerDown = true;
+    pointerTarget = canvasPosition(e);
+    canvas.setPointerCapture(e.pointerId);
 });
 
-function getLeaderboard(){
-try{
-const saved=JSON.parse(localStorage.getItem(STORAGE_KEY));
-return Array.isArray(saved)?saved:[];
-}catch{return [];}
-}
-
-function saveLeaderboard(entries){
-try{localStorage.setItem(STORAGE_KEY,JSON.stringify(entries));}
-catch{
-document.getElementById("message").textContent="Could not save leaderboard. Browser storage may be disabled.";
-}
-}
-
-function recordScore(ms){
-const name=playerNameInput.value.trim().replace(/[<>]/g,"").slice(0,18)||"MONDUY";
-const entries=getLeaderboard();
-entries.push({name,time:ms,date:new Date().toISOString()});
-entries.sort((a,b)=>a.time-b.time);
-saveLeaderboard(entries.slice(0,10));
-renderLeaderboard();
-}
-
-function renderLeaderboard(){
-const entries=getLeaderboard();
-const board=document.getElementById("leaderboard");
-
-if(!entries.length){
-board.innerHTML='<div class="empty">No speedruns recorded yet. Be the first!</div>';
-return;
-}
-
-board.innerHTML="";
-entries.slice(0,10).forEach((entry,i)=>{
-const row=document.createElement("div");
-row.className="player-entry";
-
-const left=document.createElement("span");
-const rank=document.createElement("span");
-rank.className="rank";
-rank.textContent="#"+(i+1);
-
-const name=document.createElement("span");
-name.textContent=entry.name;
-
-left.append(rank,name);
-
-const time=document.createElement("span");
-time.className="time";
-time.textContent=formatTime(entry.time);
-
-row.append(left,time);
-board.appendChild(row);
-});
-}
-
-function clearLeaderboard(){
-if(!confirm("Delete all locally saved speedrun records?"))return;
-try{localStorage.removeItem(STORAGE_KEY);}catch{}
-renderLeaderboard();
-}
-
-function winGame(){
-if(won)return;
-won=true;
-finishTime=Date.now()-startedAt;
-
-document.getElementById("timer").textContent=formatTime(finishTime);
-document.getElementById("message").textContent=
-"ROOM COMPLETED! "+selectedCharacter.toUpperCase()+" HAS DEFEATED THE DIRT. TIME: "+formatTime(finishTime);
-document.getElementById("message").style.color="#3fb950";
-
-recordScore(finishTime);
-launchConfetti();
-}
-
-function updateHUD(){
-const percentage=totalDirt?Math.round(cleaned/totalDirt*100):100;
-document.getElementById("percent").textContent=percentage+"%";
-document.getElementById("remaining").textContent=dirt.length;
-document.getElementById("progress").style.width=percentage+"%";
-}
-
-function updateTimer(){
-if(won||!startedAt)return;
-document.getElementById("timer").textContent=formatTime(Date.now()-startedAt);
-}
-
-function canvasPosition(e){
-const rect=canvas.getBoundingClientRect();
-return{x:(e.clientX-rect.left)*W/rect.width,y:(e.clientY-rect.top)*H/rect.height};
-}
-
-canvas.addEventListener("pointermove",e=>{
-if(e.pointerType==="mouse"&&e.buttons===0)pointerTarget=canvasPosition(e);
-else if(pointerDown)pointerTarget=canvasPosition(e);
+canvas.addEventListener("pointerup", () => {
+    pointerDown = false;
 });
 
-canvas.addEventListener("pointerdown",e=>{
-pointerDown=true;
-pointerTarget=canvasPosition(e);
-canvas.setPointerCapture(e.pointerId);
+canvas.addEventListener("pointercancel", () => {
+    pointerDown = false;
+    pointerTarget = null;
 });
 
-canvas.addEventListener("pointerup",()=>pointerDown=false);
-canvas.addEventListener("pointercancel",()=>{pointerDown=false;pointerTarget=null;});
-
-canvas.addEventListener("pointerleave",e=>{
-if(e.pointerType==="mouse"&&!pointerDown)pointerTarget=null;
+canvas.addEventListener("pointerleave", e => {
+    if (e.pointerType === "mouse" && !pointerDown) {
+        pointerTarget = null;
+    }
 });
 
-function update(){
-if(!won){
-let dx=0,dy=0;
-if(keys.w||keys.arrowup)dy--;
-if(keys.s||keys.arrowdown)dy++;
-if(keys.a||keys.arrowleft)dx--;
-if(keys.d||keys.arrowright)dx++;
+// MOVEMENT
 
-if(!dx&&!dy&&pointerTarget){
-const tx=pointerTarget.x-player.x;
-const ty=pointerTarget.y-player.y;
-const distance=Math.hypot(tx,ty);
-if(distance>10){dx=tx/distance;dy=ty/distance;}
-else pointerTarget=null;
+function update() {
+    if (!won) {
+        let dx = 0;
+        let dy = 0;
+
+        // Keyboard movement
+        if (keys.w || keys.arrowup) dy--;
+        if (keys.s || keys.arrowdown) dy++;
+        if (keys.a || keys.arrowleft) dx--;
+        if (keys.d || keys.arrowright) dx++;
+
+        // Cursor movement if keyboard is not being used
+        if (!dx && !dy && pointerTarget) {
+            const tx = pointerTarget.x - player.x;
+            const ty = pointerTarget.y - player.y;
+            const distance = Math.hypot(tx, ty);
+
+            if (distance > 10) {
+                dx = tx / distance;
+                dy = ty / distance;
+            } else {
+                pointerTarget = null;
+            }
+        }
+
+        if (dx || dy) {
+            const length = Math.hypot(dx, dy);
+
+            dx /= length;
+            dy /= length;
+
+            player.angle = Math.atan2(dy, dx);
+
+            const oldX = player.x;
+            const oldY = player.y;
+            const nextX = player.x + dx * player.speed;
+            const nextY = player.y + dy * player.speed;
+
+            if (
+                nextX > 28 &&
+                nextX < W - 28 &&
+                !collides(nextX, player.y, player.radius)
+            ) {
+                player.x = nextX;
+            }
+
+            if (
+                nextY > 28 &&
+                nextY < H - 28 &&
+                !collides(player.x, nextY, player.radius)
+            ) {
+                player.y = nextY;
+            }
+
+            if (!startedAt && (player.x !== oldX || player.y !== oldY)) {
+                startedAt = Date.now();
+            }
+            sweep();
+        }
+    }
 }
 
-if(dx||dy){
-const length=Math.hypot(dx,dy);
-dx/=length;
-dy/=length;
-player.angle=Math.atan2(dy,dx);
+function sweep() {
+    const broom = brooms[selectedBroom];
 
-const oldX=player.x,oldY=player.y;
-const nextX=player.x+dx*player.speed;
-const nextY=player.y+dy*player.speed;
+    const bx = player.x + Math.cos(player.angle) * 47;
+    const by = player.y + Math.sin(player.angle) * 47;
 
-if(nextX>28&&nextX<W-28&&!collides(nextX,player.y,player.radius))player.x=nextX;
-if(nextY>28&&nextY<H-28&&!collides(player.x,nextY,player.radius))player.y=nextY;
+    const oldLength = dirt.length;
 
-if(!startedAt&&(player.x!==oldX||player.y!==oldY))startedAt=Date.now();
-sweep();
+    dirt = dirt.filter(d => {
+        const distance = Math.hypot(d.x - bx, d.y - by);
+
+        if (distance < broom.range) {
+            addParticles(d.x, d.y);
+            return false;
+        }
+
+        return true;
+    });
+
+    const removed = oldLength - dirt.length;
+
+    if (removed > 0) {
+        cleaned += removed;
+        updateHUD();
+
+        if (dirt.length === 0) {
+            winGame();
+        }
+    }
 }
-}
+
+// NEW ROOM
+
+function newRoom() {
+    roomNumber++;
+
+    cleaned = 0;
+    won = false;
+    startedAt = 0;
+    finishTime = 0;
+
+    player.x = 70;
+    player.y = 70;
+    player.angle = 0;
+
+    pointerTarget = null;
+    pointerDown = false;
+
+    particles = [];
+    confetti = [];
+
+    generateRoom();
+    generateDirt();
+
+    document.getElementById("roomNumber").textContent = roomNumber;
+    document.getElementById("timer").textContent = "00:00.000";
+    document.getElementById("message").textContent =
+        selectedCharacter + " is ready. Get sweeping!";
+
+    document.getElementById("message").style.color = "#3fb950";
+
+    updateHUD();
+    render();
 }
 
-function sweep(){
-const broom=brooms[selectedBroom];
-const bx=player.x+Math.cos(player.angle)*47;
-const by=player.y+Math.sin(player.angle)*47;
-const oldLength=dirt.length;
+// RENDER
 
-dirt=dirt.filter(d=>{
-const distance=Math.hypot(d.x-bx,d.y-by);
-if(distance<broom.range){addParticles(d.x,d.y);return false;}
-return true;
+function render() {
+    ctx.clearRect(0, 0, W, H);
+
+    drawFloor();
+    drawDirt();
+    drawFurniture();
+    drawParticles();
+    drawPlayer();
+    drawConfetti();
+}
+
+function gameLoop() {
+    update();
+    render();
+    updateTimer();
+
+    requestAnimationFrame(gameLoop);
+}
+
+// KEYBOARD
+
+window.addEventListener("keydown", e => {
+    const key = e.key.toLowerCase();
+
+    if ([
+        "arrowup", "arrowdown",
+        "arrowleft", "arrowright", " "
+    ].includes(key)) {
+        e.preventDefault();
+    }
+
+    if (/^[0-9]$/.test(key) && !e.repeat) {
+        selectBroom(key === "0" ? 9 : Number(key) - 1);
+    }
+
+    keys[key] = true;
 });
 
-const removed=oldLength-dirt.length;
-if(removed>0){
-cleaned+=removed;
-updateHUD();
-if(dirt.length===0)winGame();
-}
-}
-
-function newRoom(){
-roomNumber++;
-cleaned=0;
-won=false;
-startedAt=0;
-finishTime=0;
-player.x=70;
-player.y=70;
-player.angle=0;
-pointerTarget=null;
-pointerDown=false;
-particles=[];
-confetti=[];
-
-generateRoom();
-generateDirt();
-
-document.getElementById("roomNumber").textContent=roomNumber;
-document.getElementById("timer").textContent="00:00.000";
-document.getElementById("message").textContent=selectedCharacter+" is ready. Get sweeping!";
-document.getElementById("message").style.color="#3fb950";
-
-updateHUD();
-render();
-}
-
-function render(){
-ctx.clearRect(0,0,W,H);
-drawFloor();
-drawDirt();
-drawFurniture();
-drawParticles();
-drawPlayer();
-drawConfetti();
-}
-
-function gameLoop(){
-update();
-render();
-updateTimer();
-requestAnimationFrame(gameLoop);
-}
-
-window.addEventListener("keydown",e=>{
-const key=e.key.toLowerCase();
-
-if(["arrowup","arrowdown","arrowleft","arrowright"," "].includes(key))e.preventDefault();
-
-if(/^[0-9]$/.test(key)&&!e.repeat){
-selectBroom(key==="0"?9:Number(key)-1);
-}
-keys[key]=true;
+window.addEventListener("keyup", e => {
+    keys[e.key.toLowerCase()] = false;
 });
 
-window.addEventListener("keyup",e=>keys[e.key.toLowerCase()]=false);
-
-window.addEventListener("blur",()=>{
-Object.keys(keys).forEach(k=>keys[k]=false);
-pointerTarget=null;
-pointerDown=false;
+window.addEventListener("blur", () => {
+    Object.keys(keys).forEach(k => keys[k] = false);
+    pointerTarget = null;
+    pointerDown = false;
 });
+
 
 // CHARACTER SELECT AND MAKER
-function renderCharacterChoices(){
-const grid=document.getElementById("characterGrid");
-grid.replaceChildren();
+function renderCharacterChoices() {
+    const grid = document.getElementById("characterGrid");
+    grid.replaceChildren();
+    const choices = CHARACTER_ASSETS.map(c => ({ name: c.name, src: RAW_ASSET_BASE + c.file, custom: false }));
+    choices.push({ name: "Custom Character", src: customCharacterData, custom: true });
 
-const choices=CHARACTER_ASSETS.map(c=>({name:c.name,src:RAW_ASSET_BASE+c.file,custom:false}));
-choices.push({name:"Custom Character",src:customCharacterData,custom:true});
-
-choices.forEach(choice=>{
-const card=document.createElement("button");
-card.type="button";
-card.className="character-card"+(selectedCharacter===choice.name?" selected":"");
-
-if(choice.src){
-const img=document.createElement("img");
-img.src=choice.src;
-img.alt=choice.name;
-img.onerror=()=>img.style.opacity=".25";
-card.appendChild(img);
-}else{
-const placeholder=document.createElement("div");
-placeholder.className="character-placeholder";
-placeholder.textContent="＋";
-card.appendChild(placeholder);
+    choices.forEach(choice => {
+        const card = document.createElement("button");
+        card.type = "button";
+        card.className = "character-card" + (selectedCharacter === choice.name ? " selected" : "");
+        if (choice.src) {
+            const img = document.createElement("img");
+            img.src = choice.src;
+            img.alt = choice.name;
+            img.onerror = () => { img.style.opacity = ".25"; };
+            card.appendChild(img);
+        } else {
+            const placeholder = document.createElement("div");
+            placeholder.className = "character-placeholder";
+            placeholder.textContent = "＋";
+            card.appendChild(placeholder);
+        }
+        const title = document.createElement("strong");
+        title.textContent = choice.name;
+        const note = document.createElement("small");
+        note.textContent = choice.custom ? (customCharacterData ? "Your saved creation" : "Create your own") : "Preset character";
+        card.append(title, note);
+        card.addEventListener("click", () => {
+            if (choice.custom && !customCharacterData) {
+                openCharacterMaker();
+                return;
+            }
+            selectedCharacter = choice.name;
+            localStorage.setItem(SELECTED_CHARACTER_KEY, selectedCharacter);
+            renderCharacterChoices();
+        });
+        grid.appendChild(card);
+    });
 }
 
-const title=document.createElement("strong");
-title.textContent=choice.name;
+function startWithSelectedCharacter() {
+    if (selectedCharacter === "Custom Character" && customCharacterData) {
+        setCharacterImage(customCharacterData);
+    } else {
+        const preset = CHARACTER_ASSETS.find(c => c.name === selectedCharacter) || CHARACTER_ASSETS[0];
+        selectedCharacter = preset.name;
+        setCharacterImage(RAW_ASSET_BASE + preset.file);
+    }
+    localStorage.setItem(SELECTED_CHARACTER_KEY, selectedCharacter);
+    document.getElementById("characterScreen").style.display = "none";
+    newRoom();
+}
 
-const note=document.createElement("small");
-note.textContent=choice.custom?(customCharacterData?"Your saved creation":"Create your own"):"Preset character";
+function openCharacterMaker() {
+    document.getElementById("characterScreen").style.display = "none";
+    document.getElementById("makerScreen").style.display = "flex";
+}
+function closeCharacterMaker() {
+    document.getElementById("makerScreen").style.display = "none";
+    document.getElementById("characterScreen").style.display = "flex";
+    renderCharacterChoices();
+}
 
-card.append(title,note);
-
-card.addEventListener("click",()=>{
-if(choice.custom&&!customCharacterData){openCharacterMaker();return;}
-selectedCharacter=choice.name;
-localStorage.setItem(SELECTED_CHARACTER_KEY,selectedCharacter);
-renderCharacterChoices();
+const makerCanvas = document.getElementById("makerCanvas");
+const makerCtx = makerCanvas.getContext("2d");
+let makerTool = "brush";
+let makerDrawing = false;
+let makerBackground = "#ffffff";
+let makerHistory = [];
+function makerFillBackground() {
+    makerCtx.clearRect(0, 0, makerCanvas.width, makerCanvas.height);
+    if (makerBackground) {
+        makerCtx.fillStyle = makerBackground;
+        makerCtx.fillRect(0, 0, makerCanvas.width, makerCanvas.height);
+    }
+}
+function makerSaveUndo() {
+    try {
+        makerHistory.push(makerCanvas.toDataURL("image/png"));
+        if (makerHistory.length > 30) makerHistory.shift();
+    } catch (error) { console.warn("Undo snapshot failed", error); }
+}
+function makerRestore(data) {
+    const img = new Image();
+    img.onload = () => {
+        makerFillBackground();
+        makerCtx.drawImage(img, 0, 0, makerCanvas.width, makerCanvas.height);
+    };
+    img.src = data;
+}
+function makerCoordinates(event) {
+    const rect = makerCanvas.getBoundingClientRect();
+    return { x: (event.clientX - rect.left) * makerCanvas.width / rect.width,
+             y: (event.clientY - rect.top) * makerCanvas.height / rect.height };
+}
+makerCanvas.addEventListener("pointerdown", event => {
+    makerDrawing = true;
+    makerCanvas.setPointerCapture(event.pointerId);
+    makerSaveUndo();
+    const point = makerCoordinates(event);
+    makerCtx.beginPath();
+    makerCtx.moveTo(point.x, point.y);
+    makerCtx.lineCap = "round";
+    makerCtx.lineJoin = "round";
+    makerCtx.lineWidth = Number(document.getElementById("brushSize").value);
+    makerCtx.strokeStyle = document.getElementById("brushColor").value;
+    makerCtx.globalCompositeOperation = makerTool === "eraser" ? "destination-out" : "source-over";
+    makerCtx.lineTo(point.x + .01, point.y + .01);
+    makerCtx.stroke();
 });
-
-grid.appendChild(card);
+makerCanvas.addEventListener("pointermove", event => {
+    if (!makerDrawing) return;
+    const point = makerCoordinates(event);
+    makerCtx.lineTo(point.x, point.y);
+    makerCtx.stroke();
 });
+function makerStopDrawing() {
+    makerDrawing = false;
+    makerCtx.closePath();
+    makerCtx.globalCompositeOperation = "source-over";
 }
-
-function startWithSelectedCharacter(){
-if(selectedCharacter==="Custom Character"&&customCharacterData){
-setCharacterImage(customCharacterData);
-}else{
-const preset=CHARACTER_ASSETS.find(c=>c.name===selectedCharacter)||CHARACTER_ASSETS[0];
-selectedCharacter=preset.name;
-setCharacterImage(RAW_ASSET_BASE+preset.file);
-}
-
-localStorage.setItem(SELECTED_CHARACTER_KEY,selectedCharacter);
-document.getElementById("characterScreen").style.display="none";
-newRoom();
-}
-
-function openCharacterMaker(){
-document.getElementById("characterScreen").style.display="none";
-document.getElementById("makerScreen").style.display="flex";
-}
-
-function closeCharacterMaker(){
-document.getElementById("makerScreen").style.display="none";
-document.getElementById("characterScreen").style.display="flex";
-renderCharacterChoices();
-}
-
-const makerCanvas=document.getElementById("makerCanvas");
-const makerCtx=makerCanvas.getContext("2d");
-
-let makerTool="brush";
-let makerDrawing=false;
-let makerBackground="#ffffff";
-let makerHistory=[];
-
-function makerFillBackground(){
-makerCtx.clearRect(0,0,makerCanvas.width,makerCanvas.height);
-if(makerBackground){
-makerCtx.fillStyle=makerBackground;
-makerCtx.fillRect(0,0,makerCanvas.width,makerCanvas.height);
-}
-}
-
-function makerSaveUndo(){
-try{
-makerHistory.push(makerCanvas.toDataURL("image/png"));
-if(makerHistory.length>30)makerHistory.shift();
-}catch(error){console.warn("Undo snapshot failed",error);}
-}
-
-function makerRestore(data){
-const img=new Image();
-img.onload=()=>{
-makerFillBackground();
-makerCtx.drawImage(img,0,0,makerCanvas.width,makerCanvas.height);
-};
-img.src=data;
-}
-
-function makerCoordinates(event){
-const rect=makerCanvas.getBoundingClientRect();
-return{
-x:(event.clientX-rect.left)*makerCanvas.width/rect.width,
-y:(event.clientY-rect.top)*makerCanvas.height/rect.height
-};
-}
-
-makerCanvas.addEventListener("pointerdown",event=>{
-makerDrawing=true;
-makerCanvas.setPointerCapture(event.pointerId);
-makerSaveUndo();
-
-const point=makerCoordinates(event);
-makerCtx.beginPath();
-makerCtx.moveTo(point.x,point.y);
-makerCtx.lineCap="round";
-makerCtx.lineJoin="round";
-makerCtx.lineWidth=Number(document.getElementById("brushSize").value);
-makerCtx.strokeStyle=document.getElementById("brushColor").value;
-makerCtx.globalCompositeOperation=makerTool==="eraser"?"destination-out":"source-over";
-makerCtx.lineTo(point.x+.01,point.y+.01);
-makerCtx.stroke();
+makerCanvas.addEventListener("pointerup", makerStopDrawing);
+makerCanvas.addEventListener("pointercancel", makerStopDrawing);
+document.getElementById("brushSize").addEventListener("input", event => {
+    document.getElementById("brushSizeValue").textContent = event.target.value;
 });
-
-makerCanvas.addEventListener("pointermove",event=>{
-if(!makerDrawing)return;
-const point=makerCoordinates(event);
-makerCtx.lineTo(point.x,point.y);
-makerCtx.stroke();
+document.getElementById("brushTool").addEventListener("click", () => makerTool = "brush");
+document.getElementById("eraserTool").addEventListener("click", () => makerTool = "eraser");
+document.getElementById("undoTool").addEventListener("click", () => {
+    const previous = makerHistory.pop();
+    if (previous) makerRestore(previous);
 });
-
-function makerStopDrawing(){
-makerDrawing=false;
-makerCtx.closePath();
-makerCtx.globalCompositeOperation="source-over";
+document.getElementById("clearTool").addEventListener("click", () => {
+    makerSaveUndo();
+    makerFillBackground();
+});
+document.getElementById("whiteBackground").addEventListener("click", () => {
+    makerBackground = "#ffffff";
+    makerFillBackground();
+});
+document.getElementById("transparentBackground").addEventListener("click", () => {
+    makerBackground = "";
+    makerFillBackground();
+});
+document.getElementById("characterUpload").addEventListener("change", event => {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+    if (!/^image\/(png|jpeg|webp)$/.test(file.type)) {
+        document.getElementById("makerMessage").textContent = "Choose a PNG, JPG, or WebP image.";
+        return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+            makerSaveUndo();
+            makerFillBackground();
+            const scale = Math.min(makerCanvas.width / img.width, makerCanvas.height / img.height);
+            const width = img.width * scale;
+            const height = img.height * scale;
+            makerCtx.drawImage(img, (makerCanvas.width - width) / 2, (makerCanvas.height - height) / 2, width, height);
+            document.getElementById("makerMessage").textContent = "Image loaded. Draw on top if you like.";
+        };
+        img.onerror = () => document.getElementById("makerMessage").textContent = "That image could not be opened.";
+        img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+});
+function saveCustomCharacter() {
+    try {
+        customCharacterData = makerCanvas.toDataURL("image/png");
+        localStorage.setItem(CUSTOM_CHARACTER_KEY, customCharacterData);
+        selectedCharacter = "Custom Character";
+        localStorage.setItem(SELECTED_CHARACTER_KEY, selectedCharacter);
+        document.getElementById("makerMessage").textContent = "Saved! Your custom character is ready.";
+        closeCharacterMaker();
+    } catch (error) {
+        document.getElementById("makerMessage").textContent = "Could not save. Try a smaller image or clear some browser storage.";
+    }
 }
 
-makerCanvas.addEventListener("pointerup",makerStopDrawing);
-makerCanvas.addEventListener("pointercancel",makerStopDrawing);
-
-document.getElementById("brushSize").addEventListener("input",event=>{
-document.getElementById("brushSizeValue").textContent=event.target.value;
-});
-
-document.getElementById("brushTool").addEventListener("click",()=>makerTool="brush");
-document.getElementById("eraserTool").addEventListener("click",()=>makerTool="eraser");
-
-document.getElementById("undoTool").addEventListener("click",()=>{
-const previous=makerHistory.pop();
-if(previous)makerRestore(previous);
-});
-
-document.getElementById("clearTool").addEventListener("click",()=>{
-makerSaveUndo();
-makerFillBackground();
-});
-
-document.getElementById("whiteBackground").addEventListener("click",()=>{
-makerBackground="#ffffff";
-makerFillBackground();
-});
-
-document.getElementById("transparentBackground").addEventListener("click",()=>{
-makerBackground="";
-makerFillBackground();
-});
-
-document.getElementById("characterUpload").addEventListener("change",event=>{
-const file=event.target.files&&event.target.files[0];
-if(!file)return;
-
-if(!/^image\/(png|jpeg|webp)$/.test(file.type)){
-document.getElementById("makerMessage").textContent="Choose a PNG, JPG, or WebP image.";
-return;
-}
-
-const reader=new FileReader();
-
-reader.onload=()=>{
-const img=new Image();
-
-img.onload=()=>{
-makerSaveUndo();
-makerFillBackground();
-
-const scale=Math.min(makerCanvas.width/img.width,makerCanvas.height/img.height);
-const width=img.width*scale;
-const height=img.height*scale;
-
-makerCtx.drawImage(img,(makerCanvas.width-width)/2,(makerCanvas.height-height)/2,width,height);
-document.getElementById("makerMessage").textContent="Image loaded. Draw on top if you like.";
-};
-
-img.onerror=()=>document.getElementById("makerMessage").textContent="That image could not be opened.";
-img.src=reader.result;
-};
-
-reader.readAsDataURL(file);
-});
-
-function saveCustomCharacter(){
-try{
-customCharacterData=makerCanvas.toDataURL("image/png");
-localStorage.setItem(CUSTOM_CHARACTER_KEY,customCharacterData);
-selectedCharacter="Custom Character";
-localStorage.setItem(SELECTED_CHARACTER_KEY,selectedCharacter);
-
-document.getElementById("makerMessage").textContent="Saved! Your custom character is ready.";
-closeCharacterMaker();
-}catch(error){
-document.getElementById("makerMessage").textContent="Could not save. Try a smaller image or clear some browser storage.";
-}
-}
-
-try{
-customCharacterData=localStorage.getItem(CUSTOM_CHARACTER_KEY);
-selectedCharacter=localStorage.getItem(SELECTED_CHARACTER_KEY)||"Coach Buchannan";
-}catch(error){}
-
+try {
+    customCharacterData = localStorage.getItem(CUSTOM_CHARACTER_KEY);
+    selectedCharacter = localStorage.getItem(SELECTED_CHARACTER_KEY) || "Coach Buchannan";
+} catch (error) {}
 makerFillBackground();
 renderCharacterChoices();
+
 
 // START
+
 buildBrooms();
 renderLeaderboard();
 newRoom();
-document.getElementById("characterScreen").style.display="flex";
+document.getElementById("characterScreen").style.display = "flex";
 gameLoop();
+</script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import { getFirestore, collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAWxQVQtTr0iYyF21QP4Fjmlw6nzGBAECg",
+  authDomain: "broomtheroomgloballb.firebaseapp.com",
+  projectId: "broomtheroomgloballb",
+  storageBucket: "broomtheroomgloballb.firebasestorage.app",
+  messagingSenderId: "288499087324",
+  appId: "1:288499087324:web:4e75c55e936668770d4119"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const status = document.getElementById("leaderboardStatus");
+
+function showLocalLeaderboard() {
+  try {
+    const saved = JSON.parse(localStorage.getItem("monduy_broom_speedruns_v1")) || [];
+    if (typeof window.renderLeaderboard === "function") window.renderLeaderboard(saved);
+  } catch (error) {
+    if (typeof window.renderLeaderboard === "function") window.renderLeaderboard([]);
+  }
+}
+
+window.submitGlobalScore = async ({ name, time }) => {
+  try {
+    const user = auth.currentUser || (await signInAnonymously(auth)).user;
+    await addDoc(collection(db, "leaderboard"), {
+      name: String(name).replace(/[<>]/g, "").slice(0, 18) || "MONDUY",
+      time: Math.round(time),
+      date: new Date().toISOString(),
+      uid: user.uid,
+      createdAt: serverTimestamp()
+    });
+    status.textContent = "Your speedrun was submitted to the global leaderboard.";
+  } catch (error) {
+    console.error("Firebase score submission failed:", error);
+    status.textContent = "Global submission failed. Your score is still saved locally.";
+  }
+};
+
+try {
+  await signInAnonymously(auth);
+  const scoresQuery = query(collection(db, "leaderboard"), orderBy("time", "asc"), limit(10));
+  onSnapshot(scoresQuery, snapshot => {
+    const scores = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    if (typeof window.renderLeaderboard === "function") window.renderLeaderboard(scores);
+    status.textContent = "Live global leaderboard · " + scores.length + " record" + (scores.length === 1 ? "" : "s");
+  }, error => {
+    console.error("Firebase leaderboard listener failed:", error);
+    status.textContent = "Could not load the global leaderboard. Showing local scores instead.";
+    showLocalLeaderboard();
+  });
+} catch (error) {
+  console.error("Firebase initialization/authentication failed:", error);
+  status.textContent = "Firebase unavailable. Showing locally saved scores.";
+  showLocalLeaderboard();
+}
 </script>
 
 </body>
