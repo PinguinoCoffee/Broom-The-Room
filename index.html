@@ -70,6 +70,31 @@ button:hover{background:#2ea043}
 .screen-actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-top:20px}
 .screen-actions .spacer{flex:1}
 #makerScreen{display:none}
+#rogerCurse{
+    display:none;
+    position:fixed;
+    inset:0;
+    z-index:40;
+    overflow:hidden;
+    pointer-events:none;
+    background:transparent;
+}
+#rogerCurse.active{display:block}
+#rogerCurse .curse-word{
+    position:absolute;
+    color:#ff1b1b;
+    font-family:Impact,Arial Black,sans-serif;
+    font-weight:900;
+    font-size:clamp(18px,3vw,42px);
+    letter-spacing:1px;
+    white-space:nowrap;
+    text-shadow:0 0 8px #f00,0 0 22px #900;
+    animation:rogerFlash .32s steps(2,end) infinite;
+}
+@keyframes rogerFlash{
+    0%,100%{opacity:1}
+    50%{opacity:.08}
+}
 .maker-layout{display:grid;grid-template-columns:minmax(0,1fr) 230px;gap:18px;align-items:start}
 #makerCanvas{display:block;width:100%;max-width:540px;aspect-ratio:1;background:#fff;border:1px solid #30363d;border-radius:9px;touch-action:none;cursor:crosshair}
 .maker-tools{display:flex;flex-direction:column;gap:10px}
@@ -81,9 +106,106 @@ button:hover{background:#2ea043}
 .tool-buttons{display:grid;grid-template-columns:1fr 1fr;gap:7px}
 .tool-buttons button{padding:8px 5px;font-size:11px}
 @media(max-width:650px){.screen-panel{padding:16px}.character-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.character-card img,.character-placeholder{height:125px}.maker-layout{grid-template-columns:1fr}.maker-tools{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+#rogerEnding{
+    display:none;
+    position:fixed;
+    inset:0;
+    z-index:10000;
+    pointer-events:none;
+}
+#rogerEnding.active{display:block}
+#rogerBlackout{
+    position:absolute;
+    inset:0;
+    background:#000;
+    opacity:1;
+}
+#rogerTypewriter{
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#fff;
+    font-family:ui-monospace,SFMono-Regular,Consolas,monospace;
+    font-size:clamp(24px,5vw,48px);
+    letter-spacing:2px;
+    text-shadow:0 0 12px #fff8;
+}
+#rogerFlashbang{
+    position:absolute;
+    inset:0;
+    background:#fff;
+    opacity:0;
+}
+#rogerReloadMessage{
+    position:fixed;
+    inset:0;
+    z-index:1000;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    color:#fff;
+    background:rgba(0,0,0,.88);
+    font:700 clamp(22px,4vw,42px) ui-monospace,SFMono-Regular,Consolas,monospace;
+    text-align:center;
+    letter-spacing:1px;
+    text-shadow:0 0 18px #f33;
+    pointer-events:none;
+}
+#rogerReloadMessage.active{display:flex}
+body.roger-final{
+    overflow:auto;
+    min-height:100vh;
+    background:#050505;
+    padding:24px 12px;
+}
+body.roger-final header,
+body.roger-final .top-actions,
+body.roger-final .hud,
+body.roger-final .progress-container,
+body.roger-final #message,
+body.roger-final .section,
+body.roger-final .controls{
+    display:none !important;
+}
+body.roger-final .game-container{
+    width:100%;
+    max-width:1000px;
+    margin:0 auto;
+    padding:0;
+    background:transparent;
+    border:0;
+}
+body.roger-final .canvas-wrap{
+    width:100%;
+    height:auto;
+    display:block;
+    border:0;
+    border-radius:7px;
+    background:#000;
+}
+body.roger-final #game{
+    display:block;
+    width:100%;
+    height:auto;
+    max-height:none;
+    border:1px solid #171717;
+    border-radius:7px;
+}
 </style>
 </head>
 <body>
+
+<div id="rogerCurse" aria-hidden="true"></div>
+<div id="rogerEnding" aria-hidden="true">
+    <div id="rogerBlackout"></div>
+    <div id="rogerTypewriter"></div>
+    <div id="rogerFlashbang"></div>
+</div>
+<div id="rogerReloadMessage">You're not getting away that easy</div>
 
 <div class="screen-overlay" id="characterScreen">
   <div class="screen-panel">
@@ -261,6 +383,20 @@ const brooms = [
 
 let rogerUnlocked = false;
 let rogerCodeBuffer = "";
+let rogerMode = false;
+let rogerCurseTimer = null;
+let rogerRoomTimer = null;
+let rogerRoomsPlayed = 0;
+let rogerEndingQueued = false;
+let rogerFinalMode = false;
+let rogerEndingTimeouts = [];
+let rogerChaser = null;
+let rogerCaught = false;
+const rogerChaserImage=new Image();
+rogerChaserImage.src="https://raw.githubusercontent.com/PinguinoCoffee/Broom-The-Room/main/ohdfhjksd.png";
+const ROGER_ESCAPE_KEY = "broom_room_roger_escape_v1";
+let returningFromRoger = false;
+try { returningFromRoger = localStorage.getItem(ROGER_ESCAPE_KEY) === "1"; } catch(error) {}
 
 const bookPalette = ["#a74b4b","#557d9d","#d3b66a","#54815e","#9471a5","#bd7951"];
 
@@ -407,22 +543,163 @@ function buildBrooms() {
 function unlockRogerBroom() {
     if(rogerUnlocked) return;
     rogerUnlocked = true;
-    brooms.push({name:"ROGER BROOM",emoji:"🧹",speed:99999,range:1,width:1});
+    brooms.push({name:"ROGER BROOM",emoji:"🧹",speed:9.5,range:105,width:3});
     buildBrooms();
     selectBroom(10);
     document.getElementById("message").textContent = "ROGER BROOM UNLOCKED. THE MONDUY BROOM HAS BEEN OUTCLASSED.";
 }
 
 function selectBroom(i) {
+    if(!brooms[i] || rogerFinalMode || rogerEndingQueued) return;
+
     selectedBroom=i;
     player.speed=brooms[i].speed;
+    const wasRoger=rogerMode;
+    rogerMode=(i===10);
+
+    if(rogerMode && !wasRoger) {
+        rogerRoomsPlayed=1;
+        rogerEndingQueued=false;
+    } else if(!rogerMode) {
+        rogerRoomsPlayed=0;
+    }
+
+    setRogerCurse(false);
 
     document.querySelectorAll(".broom").forEach((el,index)=>{
         el.classList.toggle("active",index===i);
     });
 
-    document.getElementById("message").textContent="Equipped: "+brooms[i].name;
+    document.getElementById("message").textContent=rogerMode
+        ?"Roger Broom equipped. Enjoy your three rooms."
+        :"Equipped: "+brooms[i].name;
     render();
+}
+
+function setRogerCurse(enabled) {
+    const overlay=document.getElementById("rogerCurse");
+    if(!overlay) return;
+
+    overlay.classList.remove("active");
+    overlay.replaceChildren();
+
+    if(rogerCurseTimer) {
+        clearInterval(rogerCurseTimer);
+        rogerCurseTimer=null;
+    }
+    if(rogerRoomTimer) {
+        clearInterval(rogerRoomTimer);
+        rogerRoomTimer=null;
+    }
+}
+
+function startRogerEnding() {
+    if(rogerFinalMode) return;
+    rogerFinalMode=true;
+    rogerEndingQueued=true;
+    try { localStorage.setItem(ROGER_ESCAPE_KEY,"1"); } catch(error) {}
+
+    if(rogerCurseTimer) clearInterval(rogerCurseTimer);
+    if(rogerRoomTimer) clearInterval(rogerRoomTimer);
+    rogerCurseTimer=null;
+    rogerRoomTimer=null;
+
+    const ending=document.getElementById("rogerEnding");
+    const blackout=document.getElementById("rogerBlackout");
+    const typewriter=document.getElementById("rogerTypewriter");
+    const flash=document.getElementById("rogerFlashbang");
+
+    ending.classList.add("active");
+    blackout.style.transition="none";
+    blackout.style.opacity="1";
+    typewriter.textContent="";
+    flash.style.transition="none";
+    flash.style.opacity="0";
+
+    const line="you idiot";
+    let position=0;
+    const typeTimer=setInterval(()=>{
+        typewriter.textContent=line.slice(0,++position);
+        if(position>=line.length) clearInterval(typeTimer);
+    },180);
+
+    // Hold on the message, then remove the black screen before the white flash.
+    rogerEndingTimeouts.push(setTimeout(()=>{
+        blackout.style.transition="opacity 650ms ease";
+        blackout.style.opacity="0";
+    },2600));
+
+    rogerEndingTimeouts.push(setTimeout(()=>{
+        blackout.style.display="none";
+        typewriter.style.display="none";
+        flash.style.transition="none";
+        flash.style.opacity="1";
+    },3250));
+
+    rogerEndingTimeouts.push(setTimeout(()=>{
+        flash.style.transition="opacity 1900ms ease-out";
+        flash.style.opacity="0";
+    },4300));
+
+    rogerEndingTimeouts.push(setTimeout(()=>{
+        ending.classList.remove("active");
+        ending.style.display="none";
+        document.body.classList.add("roger-final");
+        // Keep the final scene clean: no curse overlay, HUD, inventory, or room controls.
+        setRogerCurse(false);
+        startRogerChase();
+    },6300));
+}
+
+// THE THING THAT FOLLOWS YOU
+
+function startRogerChase() {
+    if(rogerChaser) return;
+    const candidates=[
+        {x:W-65,y:H-65},{x:W-65,y:65},{x:65,y:H-65},{x:W/2,y:H-55}
+    ];
+    const spawn=candidates.sort((a,b)=>Math.hypot(b.x-player.x,b.y-player.y)-Math.hypot(a.x-player.x,a.y-player.y))[0];
+    rogerChaser={x:spawn.x,y:spawn.y,radius:22,speed:Math.max(1.9,player.speed*.88),pulse:0};
+}
+
+function updateRogerChaser() {
+    if(!rogerFinalMode||!rogerChaser||rogerCaught) return;
+    const dx=player.x-rogerChaser.x;
+    const dy=player.y-rogerChaser.y;
+    const distance=Math.hypot(dx,dy)||1;
+    const step=Math.min(rogerChaser.speed,distance);
+    const nx=rogerChaser.x+(dx/distance)*step;
+    const ny=rogerChaser.y+(dy/distance)*step;
+    if(nx>20&&nx<W-20&&!collides(nx,rogerChaser.y,rogerChaser.radius)) rogerChaser.x=nx;
+    if(ny>20&&ny<H-20&&!collides(rogerChaser.x,ny,rogerChaser.radius)) rogerChaser.y=ny;
+    rogerChaser.pulse+=.12;
+    if(Math.hypot(player.x-rogerChaser.x,player.y-rogerChaser.y)<player.radius+rogerChaser.radius) {
+        rogerCaught=true;
+        try { window.close(); } catch(error) {}
+        // Browsers may refuse to close tabs they did not open. Keep the caught state trapped if so.
+        document.body.innerHTML='<div style="position:fixed;inset:0;background:#000;color:#f33;display:grid;place-items:center;font:700 28px monospace;text-align:center">YOU WERE CAUGHT.</div>';
+    }
+}
+
+function drawRogerChaser() {
+    if(!rogerFinalMode||!rogerChaser) return;
+    const c=rogerChaser;
+    const size=68+Math.sin(c.pulse)*3;
+    ctx.save();
+    ctx.shadowColor="#ff0000";
+    ctx.shadowBlur=18+Math.sin(c.pulse)*5;
+    if(rogerChaserImage.complete&&rogerChaserImage.naturalWidth) {
+        ctx.drawImage(rogerChaserImage,c.x-size/2,c.y-size/2,size,size);
+    } else {
+        ctx.fillStyle="#160707";
+        ctx.beginPath();
+        ctx.arc(c.x,c.y,c.radius,0,Math.PI*2);
+        ctx.fill();
+        ctx.fillStyle="#ff1717";
+        ctx.fillRect(c.x-9,c.y-5,5,8);
+        ctx.fillRect(c.x+4,c.y-5,5,8);
+    }
+    ctx.restore();
 }
 
 // FLOOR
@@ -815,8 +1092,10 @@ function winGame() {
 // HUD
 
 function updateHUD() {
-    const percentage=totalDirt?Math.round(cleaned/totalDirt*100):100;
-    document.getElementById("percent").textContent=percentage+"%";
+    const percentage=rogerMode
+        ?Math.min(99,Math.round(cleaned/Math.max(totalDirt,1)*100))
+        :(totalDirt?Math.round(cleaned/totalDirt*100):100);
+    document.getElementById("percent").textContent=rogerMode?"∞":percentage+"%";
     document.getElementById("remaining").textContent=dirt.length;
     document.getElementById("progress").style.width=percentage+"%";
 }
@@ -865,6 +1144,7 @@ canvas.addEventListener("pointerleave",e=>{
 // MOVEMENT
 
 function update() {
+    if(rogerFinalMode) updateRogerChaser();
     if(!won) {
         let dx=0;
         let dy=0;
@@ -915,6 +1195,28 @@ function update() {
     }
 }
 
+function spawnRogerDirt(amount) {
+    for(let i=0;i<amount;i++) {
+        let placed=false;
+
+        for(let attempt=0;attempt<80;attempt++) {
+            const x=random(24,W-24);
+            const y=random(24,H-24);
+
+            if(!collides(x,y,7)) {
+                dirt.push({
+                    x,y,
+                    size:random(1.5,4),
+                    type:Math.random(),
+                    rotation:random(0,Math.PI*2)
+                });
+                placed=true;
+                break;
+            }
+        }
+    }
+}
+
 function sweep() {
     const broom=brooms[selectedBroom];
     const bx=player.x+Math.cos(player.angle)*47;
@@ -934,8 +1236,16 @@ function sweep() {
 
     if(removed>0) {
         cleaned+=removed;
+
+        if(rogerMode) {
+            spawnRogerDirt(removed);
+            document.getElementById("message").textContent=
+                "DIRTY CHEATER. "+dirt.length+" DIRT REMAINS. IT NEVER ENDS.";
+        } else if(dirt.length===0) {
+            winGame();
+        }
+
         updateHUD();
-        if(dirt.length===0) winGame();
     }
 }
 
@@ -959,15 +1269,26 @@ function newRoom() {
 
     generateRoom();
     generateDirt();
+    if(rogerMode) spawnRogerDirt(300);
+
+    if(rogerMode && !rogerEndingQueued && !rogerFinalMode) {
+        rogerRoomsPlayed++;
+        if(rogerRoomsPlayed>=3) {
+            rogerEndingQueued=true;
+            setTimeout(startRogerEnding,1200);
+        }
+    }
 
     document.getElementById("roomNumber").textContent=roomNumber;
     document.getElementById("timer").textContent="00:00.000";
 
-    document.getElementById("message").textContent=emptyRoom
-        ?"✨ RARE EMPTY ROOM! Exactly 100 dirt particles. Good luck!"
-        :selectedCharacter+" is ready. Get sweeping!";
+    document.getElementById("message").textContent=rogerMode
+        ?"DIRTY CHEATER. ROOM "+roomNumber+" HAS BEEN REPLACED. IT NEVER ENDS."
+        :emptyRoom
+            ?"✨ RARE EMPTY ROOM! Exactly 100 dirt particles. Good luck!"
+            :selectedCharacter+" is ready. Get sweeping!";
 
-    document.getElementById("message").style.color=emptyRoom?"#ffd700":"#3fb950";
+    document.getElementById("message").style.color=rogerMode?"#ff3b3b":emptyRoom?"#ffd700":"#3fb950";
 
     updateHUD();
     render();
@@ -983,6 +1304,13 @@ function render() {
     drawParticles();
     drawPlayer();
     drawConfetti();
+    if(rogerFinalMode) {
+        ctx.save();
+        ctx.fillStyle="rgba(0,0,0,.58)";
+        ctx.fillRect(0,0,W,H);
+        ctx.restore();
+    }
+    drawRogerChaser();
 }
 
 function gameLoop() {
@@ -996,6 +1324,12 @@ function gameLoop() {
 
 window.addEventListener("keydown",e=>{
     const key=e.key.toLowerCase();
+    if(rogerFinalMode) {
+        if(/^[0-9]$/.test(key) || key==="r") {
+            e.preventDefault();
+            return;
+        }
+    }
     const target=e.target;
     const typing=target&&(target.matches("input,textarea,select")||target.isContentEditable);
     const characterScreenOpen=getComputedStyle(document.getElementById("characterScreen")).display!=="none";
@@ -1019,7 +1353,7 @@ window.addEventListener("keydown",e=>{
         e.preventDefault();
     }
 
-    if(/^[0-9]$/.test(key)&&!e.repeat&&!typing) {
+    if(/^[0-9]$/.test(key)&&!e.repeat&&!typing&&!rogerEndingQueued&&!rogerFinalMode) {
         selectBroom(key==="0"?9:Number(key)-1);
     }
 
@@ -1315,7 +1649,32 @@ renderCharacterChoices();
 
 buildBrooms();
 renderLeaderboard();
-document.getElementById("characterScreen").style.display="flex";
+if(returningFromRoger) {
+    rogerFinalMode=true;
+    rogerEndingQueued=true;
+    selectedBroom=0;
+    player.speed=brooms[0].speed;
+    try {
+        const savedName=localStorage.getItem(SELECTED_CHARACTER_KEY)||"Coach Buchannan";
+        selectedCharacter=savedName;
+        const custom=localStorage.getItem(CUSTOM_CHARACTER_KEY);
+        if(savedName==="Custom Character"&&custom) setCharacterImage(custom);
+        else {
+            const preset=CHARACTER_ASSETS.find(c=>c.name===savedName)||CHARACTER_ASSETS[0];
+            setCharacterImage(RAW_ASSET_BASE+preset.file);
+        }
+    } catch(error) {}
+    document.getElementById("characterScreen").style.display="none";
+    document.getElementById("makerScreen").style.display="none";
+    newRoom();
+    document.body.classList.add("roger-final");
+    startRogerChase();
+    const returningMessage=document.getElementById("rogerReloadMessage");
+    returningMessage.classList.add("active");
+    setTimeout(()=>returningMessage.classList.remove("active"),2200);
+} else {
+    document.getElementById("characterScreen").style.display="flex";
+}
 gameLoop();
 </script>
 
