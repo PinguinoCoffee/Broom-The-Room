@@ -170,6 +170,7 @@ button:hover{background:#2ea043}
             MOUSE: Move toward cursor<br>
             CLICK / DRAG: Set movement destination<br>
             1-9 / 0: Change broom<br>
+            SECRET: Type "roger" to unlock the ROGER BROOM<br>
             R: Refresh room
         </div>
     </div>
@@ -258,6 +259,9 @@ const brooms = [
     {name:"Professional",emoji:"🏆",speed:4,range:35,width:1.5},
     {name:"THE MONDUY",emoji:"👑",speed:5.5,range:55,width:2}
 ];
+
+let rogerUnlocked = false;
+let rogerCodeBuffer = "";
 
 const bookPalette = ["#a74b4b","#557d9d","#d3b66a","#54815e","#9471a5","#bd7951"];
 
@@ -391,14 +395,23 @@ function buildBrooms() {
         el.className = "broom";
         el.innerHTML = `
             <span class="emoji">${b.emoji}</span>
-            <b>${i===9?"0":i+1} - ${b.name}</b>
+            <b>${i===9?"0":i===10?"SECRET":i+1} - ${b.name}</b>
             <small>Speed ${b.speed} | Range ${b.range}</small>
         `;
         el.addEventListener("click",()=>selectBroom(i));
         list.appendChild(el);
     });
 
-    selectBroom(0);
+    selectBroom(Math.min(selectedBroom,brooms.length-1));
+}
+
+function unlockRogerBroom() {
+    if(rogerUnlocked) return;
+    rogerUnlocked = true;
+    brooms.push({name:"ROGER BROOM",emoji:"🧹",speed:55,range:550,width:20});
+    buildBrooms();
+    selectBroom(10);
+    document.getElementById("message").textContent = "ROGER BROOM UNLOCKED. THE MONDUY BROOM HAS BEEN OUTCLASSED.";
 }
 
 function selectBroom(i) {
@@ -540,16 +553,16 @@ function drawPlayer() {
     ctx.translate(player.x,player.y);
     ctx.rotate(player.angle);
 
-    ctx.strokeStyle=selectedBroom===9?"#ff5555":"#79502d";
-    ctx.lineWidth=selectedBroom>=6?7:5;
+    ctx.strokeStyle=selectedBroom===10?"#00e5ff":selectedBroom===9?"#ff5555":"#79502d";
+    ctx.lineWidth=selectedBroom===10?14:selectedBroom>=6?7:5;
     ctx.lineCap="round";
     ctx.beginPath();
     ctx.moveTo(5,0);
     ctx.lineTo(42,0);
     ctx.stroke();
 
-    const size=9+broom.width*5;
-    ctx.fillStyle=selectedBroom===9?"#ff5555":selectedBroom===5?"#ffd700":"#e1c17a";
+    const size=selectedBroom===10?109:9+broom.width*5;
+    ctx.fillStyle=selectedBroom===10?"#00e5ff":selectedBroom===9?"#ff5555":selectedBroom===5?"#ffd700":"#e1c17a";
     ctx.beginPath();
     ctx.moveTo(37,-size);
     ctx.lineTo(53,-size*.8);
@@ -989,6 +1002,14 @@ window.addEventListener("keydown",e=>{
     const characterScreenOpen=getComputedStyle(document.getElementById("characterScreen")).display!=="none";
     const makerScreenOpen=getComputedStyle(document.getElementById("makerScreen")).display!=="none";
 
+    if(!typing && !characterScreenOpen && !makerScreenOpen && key.length===1 && /^[a-z]$/.test(key)) {
+        rogerCodeBuffer = (rogerCodeBuffer + key).slice(-5);
+        if(rogerCodeBuffer === "roger") {
+            unlockRogerBroom();
+            rogerCodeBuffer = "";
+        }
+    }
+
     if(key==="r"&&!e.repeat&&!typing&&!characterScreenOpen&&!makerScreenOpen) {
         e.preventDefault();
         newRoom();
@@ -1043,7 +1064,13 @@ function renderCharacterChoices() {
             const img=document.createElement("img");
             img.src=choice.src;
             img.alt=choice.name;
-            img.onerror=()=>{img.style.opacity=".25";};
+            img.onerror=()=>{
+                const placeholder=document.createElement("div");
+                placeholder.className="character-placeholder";
+                placeholder.textContent="Image missing";
+                img.replaceWith(placeholder);
+                console.error("Character thumbnail failed to load:",choice.src);
+            };
             card.appendChild(img);
         } else {
             const placeholder=document.createElement("div");
